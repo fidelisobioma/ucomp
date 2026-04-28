@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============== ENUMS ==============
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum FileType {
+  PDF
+  DOCX
+  JPG
+  PNG
+}
+
+enum PrintQueueStatus {
+  PENDING
+  PRINTED
+  EXPIRED
+}
+
+enum NotificationType {
+  PRINT
+  EXPIRY
+  DELETE
+  ROLE_CHANGE
+}
+
+// ============== MODELS ==============
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         Role     @default(USER)
+  storageUsed  Int      @default(0)
+  storageLimit Int      @default(209715200) // 200MB in bytes
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  files          File[]
+  printQueueItems PrintQueueItem[]
+  notifications  Notification[]
+  printLogs      PrintLog[]       // prints performed by this user if admin
+}
+
+model File {
+  id        String   @id @default(uuid())
+  name      String
+  size      Int
+  type      FileType
+  url       String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  printQueueItems PrintQueueItem[]
+}
+
+model PrintQueueItem {
+  id        String           @id @default(uuid())
+  fileId    String
+  userId    String
+  status    PrintQueueStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relations
+  file      File       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  printLogs PrintLog[]
+}
+
+model PrintLog {
+  id               String   @id @default(uuid())
+  printQueueItemId String
+  adminId          String
+  copies           Int      @default(1)
+  printedAt        DateTime @default(now())
+
+  // Relations
+  printQueueItem PrintQueueItem @relation(fields: [printQueueItemId], references: [id], onDelete: Cascade)
+  admin          User           @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  message   String
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
