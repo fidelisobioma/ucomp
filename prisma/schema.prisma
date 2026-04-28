@@ -44,21 +44,65 @@ enum NotificationType {
 
 model User {
   id           String   @id @default(uuid())
-  name         String
+  name         String?
   email        String   @unique
-  password     String
+  password     String?
   role         Role     @default(USER)
   storageUsed  Int      @default(0)
-  storageLimit Int      @default(209715200) // 200MB in bytes
+  storageLimit Int      @default(209715200)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   // Relations
-  files          File[]
+  files           File[]
   printQueueItems PrintQueueItem[]
-  notifications  Notification[]
-  printLogs      PrintLog[]       // prints performed by this user if admin
+  notifications   Notification[]
+  printLogs       PrintLog[]
+
+  // NextAuth relations
+  accounts Account[]
+  sessions Session[]
 }
+
+// ============== NEXTAUTH MODELS ==============
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============== APP MODELS ==============
 
 model File {
   id        String   @id @default(uuid())
@@ -70,8 +114,7 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   printQueueItems PrintQueueItem[]
 }
 
@@ -84,7 +127,6 @@ model PrintQueueItem {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  // Relations
   file      File       @relation(fields: [fileId], references: [id], onDelete: Cascade)
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   printLogs PrintLog[]
@@ -97,7 +139,6 @@ model PrintLog {
   copies           Int      @default(1)
   printedAt        DateTime @default(now())
 
-  // Relations
   printQueueItem PrintQueueItem @relation(fields: [printQueueItemId], references: [id], onDelete: Cascade)
   admin          User           @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
@@ -110,6 +151,5 @@ model Notification {
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
