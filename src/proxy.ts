@@ -1,20 +1,15 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth.config";
-import { NextResponse } from "next/server";
-import type { Session } from "next-auth";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-type AuthRequest = NextRequest & { auth: Session | null };
+export async function proxy(req: NextRequest) {
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    cookieName: "authjs.session-token",
+  });
 
-const { auth } = NextAuth(authConfig);
-
-export function proxy(req: AuthRequest) {
-  const { nextUrl, auth: session } = req;
-
-  console.log("PROXY SESSION:", JSON.stringify(session));
-  console.log("PROXY PATH:", nextUrl.pathname);
-  console.log("PROXY COOKIES:", req.cookies.getAll());
-  const isLoggedIn = !!session?.user;
+  const isLoggedIn = !!token;
+  const { nextUrl } = req;
 
   const isAuthRoute =
     nextUrl.pathname.startsWith("/sign-in") ||
@@ -42,4 +37,4 @@ export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
 
-export default auth(proxy);
+export default proxy;

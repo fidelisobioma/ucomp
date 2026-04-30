@@ -3,7 +3,6 @@ import Credentials from "next-auth/providers/credentials";
 import { signInSchema } from "./validations/auth";
 
 export const authConfig: NextAuthConfig = {
-  secret: process.env.AUTH_SECRET,
   trustHost: true,
   pages: {
     signIn: "/sign-in",
