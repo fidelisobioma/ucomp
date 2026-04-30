@@ -1,26 +1,36 @@
-import { auth } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 import { NextResponse } from "next/server";
 import type { Session } from "next-auth";
 import type { NextRequest } from "next/server";
 
 type AuthRequest = NextRequest & { auth: Session | null };
 
+const { auth } = NextAuth(authConfig);
+
 export function proxy(req: AuthRequest) {
   const { nextUrl, auth: session } = req;
-  const isLoggedIn = !!session;
+
+  console.log("PROXY SESSION:", JSON.stringify(session));
+  console.log("PROXY PATH:", nextUrl.pathname);
+  console.log("PROXY COOKIES:", req.cookies.getAll());
+  const isLoggedIn = !!session?.user;
 
   const isAuthRoute =
     nextUrl.pathname.startsWith("/sign-in") ||
     nextUrl.pathname.startsWith("/sign-up");
 
   const isPublicRoute = nextUrl.pathname === "/";
+  const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
 
-  // If on auth route and already logged in, redirect to dashboard
   if (isAuthRoute && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
-  // If not logged in and trying to access protected route, redirect to sign in
+  if (isDashboardRoute && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/sign-in", nextUrl));
+  }
+
   if (!isLoggedIn && !isAuthRoute && !isPublicRoute) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl));
   }
