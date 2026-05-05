@@ -1,8 +1,34 @@
-export default function PrivateFolderPage() {
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import PrivateFolderClient from "./private-folder-client";
+// import PrivateFolderClient from "./private-folder-client";
+
+export default async function PrivateFolderPage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/sign-in");
+  }
+
+  const userId = (session.user as { id: string }).id;
+
+  const [files, user] = await Promise.all([
+    prisma.file.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { storageUsed: true, storageLimit: true },
+    }),
+  ]);
+
   return (
-    <div>
-      <h2 className="font-bold text-slate-900 text-2xl">Private Folder</h2>
-      <p className="mt-1 text-slate-500">Your private documents</p>
-    </div>
+    <PrivateFolderClient
+      initialFiles={files}
+      storageUsed={user?.storageUsed ?? 0}
+      storageLimit={user?.storageLimit ?? 209715200}
+    />
   );
 }
