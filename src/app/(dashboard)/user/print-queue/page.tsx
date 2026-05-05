@@ -1,8 +1,31 @@
-export default function PrintQueuePage() {
-  return (
-    <div>
-      <h2 className="font-bold text-slate-900 text-2xl">Print Queue</h2>
-      <p className="mt-1 text-slate-500">Documents queued for printing</p>
-    </div>
-  );
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import UserPrintQueueClient from "./user-print-queue-client";
+
+export default async function UserPrintQueuePage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/sign-in");
+  }
+
+  const userId = (session.user as { id: string }).id;
+
+  const queueItems = await prisma.printQueueItem.findMany({
+    where: {
+      userId,
+      status: "PENDING",
+    },
+    include: {
+      file: true,
+      printLogs: {
+        orderBy: { printedAt: "desc" },
+        take: 1,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return <UserPrintQueueClient initialQueueItems={queueItems} />;
 }
