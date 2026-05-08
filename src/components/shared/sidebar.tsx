@@ -9,6 +9,7 @@ import {
   Users,
   ShieldCheck,
   Settings,
+  Home,
 } from "lucide-react";
 
 type Role = "USER" | "ADMIN" | "SUPERADMIN";
@@ -83,6 +84,17 @@ export default function Sidebar({ role }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Home Link at bottom */}
+      <div className="mt-auto">
+        <Link
+          href="/"
+          className="flex items-center gap-3 hover:bg-slate-50 px-3 py-2.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 text-sm transition-colors"
+        >
+          <Home className="w-4 h-4 shrink-0" />
+          Home
+        </Link>
+      </div>
     </aside>
   );
 }
