@@ -3,8 +3,9 @@
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Play, LayoutDashboard } from "lucide-react";
 import Image from "next/image";
 
 const slides = [
@@ -35,12 +36,15 @@ const slides = [
 ];
 
 export default function Hero() {
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
+
   const [emblaRef] = useEmblaCarousel({ loop: true }, [
     Autoplay({ delay: 5000, stopOnInteraction: false }),
   ]);
 
   return (
-    <section id="home" className="relative h-screen min-h-150">
+    <section id="home" className="relative h-screen min-h-[600px]">
       {/* Slideshow */}
       <div className="h-full overflow-hidden" ref={emblaRef}>
         <div className="flex h-full">
@@ -50,9 +54,8 @@ export default function Hero() {
                 src={slide.image}
                 alt={slide.alt}
                 className="w-full h-full object-cover"
-                fill={true}
+                fill
               />
-              {/* Dark overlay */}
               <div className="absolute inset-0 bg-black/50" />
             </div>
           ))}
@@ -70,13 +73,26 @@ export default function Hero() {
             pick them up ready. Fast, private, and secure.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4 mt-8">
-            <Button
-              size="lg"
-              asChild
-              className="bg-white hover:bg-white/90 text-slate-900 hover:text-white"
-            >
-              <Link href="/sign-up">Get Started</Link>
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                size="lg"
+                asChild
+                className="bg-white hover:bg-white/90 text-slate-900 hover:text-white"
+              >
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-2 w-4 h-4" />
+                  Go to Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                asChild
+                className="bg-white hover:bg-white/90 text-slate-900 hover:text-white"
+              >
+                <Link href="/sign-up">Get Started</Link>
+              </Button>
+            )}
             <Button
               size="lg"
               variant="outline"

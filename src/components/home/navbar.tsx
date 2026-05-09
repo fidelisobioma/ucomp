@@ -2,8 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -17,6 +27,17 @@ const navLinks = [
 export default function HomeNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const isLoggedIn = !!session?.user;
+  const userName = session?.user?.name ?? "User";
+  const userEmail = session?.user?.email ?? "";
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   useEffect(() => {
     function handleScroll() {
@@ -65,32 +86,86 @@ export default function HomeNavbar() {
           ))}
         </nav>
 
-        {/* Desktop CTA Buttons */}
+        {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-            className={cn(
-              "transition-colors",
-              !isScrolled &&
-                "border-white/50 text-slate-800 hover:bg-white/20 hover:text-slate-900",
-            )}
-          >
-            <Link href="/sign-in">Sign In</Link>
-          </Button>
-          <Button
-            size="sm"
-            asChild
-            className={cn(
-              "transition-colors",
-              isScrolled
-                ? "bg-slate-900 text-white hover:bg-slate-700"
-                : "bg-white text-slate-900 hover:bg-slate-900 hover:text-white",
-            )}
-          >
-            <Link href="/sign-up">Get Started</Link>
-          </Button>
+          {isLoggedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "data-[state=open]:bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent px-2",
+                  )}
+                >
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback
+                      className={cn(
+                        "font-medium text-sm",
+                        isScrolled
+                          ? "bg-slate-100 text-slate-700"
+                          : "bg-white/20 text-white border border-white/30",
+                      )}
+                    >
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{userName}</span>
+                    <span className="font-normal text-slate-500 text-xs">
+                      {userEmail}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="gap-2">
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="gap-2 text-red-600 focus:text-red-600"
+                  onClick={() => signOut({ callbackUrl: "/sign-in" })}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className={cn(
+                  "transition-colors",
+                  !isScrolled &&
+                    "border-white/50 text-slate-800 hover:bg-white/20 hover:text-slate-900",
+                )}
+              >
+                <Link href="/sign-in">Sign In</Link>
+              </Button>
+              <Button
+                size="sm"
+                asChild
+                className={cn(
+                  "transition-colors",
+                  isScrolled
+                    ? "bg-slate-900 text-white hover:bg-slate-700"
+                    : "bg-white text-slate-900 hover:bg-slate-900 hover:text-white",
+                )}
+              >
+                <Link href="/sign-up">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -130,12 +205,33 @@ export default function HomeNavbar() {
             </Link>
           ))}
           <div className="flex flex-col gap-2 pt-2 border-t">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/sign-in">Sign In</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/sign-up">Get Started</Link>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 w-4 h-4" />
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => signOut({ callbackUrl: "/sign-in" })}
+                >
+                  <LogOut className="mr-2 w-4 h-4" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/sign-in">Sign In</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/sign-up">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}

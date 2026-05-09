@@ -1,7 +1,7 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +18,14 @@ interface NavbarProps {
   userName: string;
   userEmail: string;
   role: string;
+  onMobileMenuOpen: () => void;
 }
 
-export default function Navbar({ userName, userEmail, role }: NavbarProps) {
+export default function Navbar({
+  userName,
+  userEmail,
+  onMobileMenuOpen,
+}: NavbarProps) {
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -30,15 +35,23 @@ export default function Navbar({ userName, userEmail, role }: NavbarProps) {
 
   return (
     <header className="flex justify-between items-center bg-white px-6 border-b h-16">
-      {/* Left — Mobile Logo */}
-      <div className="md:hidden font-bold text-slate-900">Ucomp</div>
+      {/* Left — Mobile hamburger + Logo */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onMobileMenuOpen}
+        >
+          <Menu className="w-5 h-5 text-slate-600" />
+        </Button>
+        <span className="md:hidden font-bold text-slate-900">Ucomp</span>
+      </div>
 
       {/* Right — Actions */}
       <div className="flex items-center gap-3 ml-auto">
-        {/* Notification Bell */}
         <NotificationBell />
 
-        {/* User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="px-2">
