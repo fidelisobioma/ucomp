@@ -4,6 +4,7 @@ import { signOut } from "next-auth/react";
 import { LogOut, User, Menu } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,7 +46,12 @@ export default function Navbar({
         >
           <Menu className="w-5 h-5 text-slate-600" />
         </Button>
-        <span className="md:hidden font-bold text-slate-900">Ucomp</span>
+        {/* <span className="md:hidden font-bold text-slate-900">Ucomp</span> */}
+        <Link href="/" className="group">
+          <h1 className="font-bold text-slate-900 group-hover:text-slate-600 text-xl tracking-tight transition-colors">
+            Ucomp
+          </h1>
+        </Link>
       </div>
 
       {/* Right — Actions */}
