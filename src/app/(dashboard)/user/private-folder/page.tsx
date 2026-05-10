@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import PrivateFolderClient from "./private-folder-client";
-// import PrivateFolderClient from "./private-folder-client";
 
 export default async function PrivateFolderPage() {
   const session = await auth();

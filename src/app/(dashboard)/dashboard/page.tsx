@@ -11,11 +11,11 @@ export default async function DashboardPage() {
   const role = (session.user as { role: string }).role;
 
   if (role === "SUPERADMIN") {
-    redirect("/super-admin/roles");
+    redirect("/user/private-folder");
   }
 
   if (role === "ADMIN") {
-    redirect("/admin/users");
+    redirect("/user/private-folder");
   }
 
   redirect("/user/private-folder");

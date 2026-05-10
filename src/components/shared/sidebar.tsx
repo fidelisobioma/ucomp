@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -9,16 +10,15 @@ import {
   Users,
   ShieldCheck,
   Settings,
-  X,
+  Menu,
 } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 type Role = "USER" | "ADMIN" | "SUPERADMIN";
 
 interface SidebarProps {
   role: Role;
-  isMobileOpen: boolean;
-  onMobileClose: () => void;
 }
 
 interface NavItem {
@@ -33,13 +33,15 @@ const userNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
+  { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
+  { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Print Queue", href: "/admin/print-queue", icon: PrinterIcon },
 ];
 
 const superAdminNavItems: NavItem[] = [
+  { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
+  { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Print Queue", href: "/admin/print-queue", icon: PrinterIcon },
   { label: "Role Management", href: "/super-admin/roles", icon: ShieldCheck },
   { label: "Settings", href: "/super-admin/settings", icon: Settings },
 ];
@@ -50,34 +52,19 @@ const navItemsByRole: Record<Role, NavItem[]> = {
   SUPERADMIN: superAdminNavItems,
 };
 
-export default function Sidebar({
-  role,
-  isMobileOpen,
-  onMobileClose,
-}: SidebarProps) {
+function NavItems({ role, onClose }: { role: Role; onClose?: () => void }) {
   const pathname = usePathname();
   const navItems = navItemsByRole[role];
 
-  const sidebarContent = (
+  return (
     <>
       {/* Logo */}
-      <div className="flex justify-between items-center mb-8 px-2">
-        <Link href="/" className="group">
-          <h1 className="font-bold text-slate-900 group-hover:text-slate-600 text-xl tracking-tight transition-colors">
-            Ucomp
-          </h1>
-          <p className="mt-0.5 text-slate-500 text-xs">Cybercafé Portal</p>
-        </Link>
-        {/* Close button — mobile only */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onMobileClose}
-        >
-          <X className="w-5 h-5" />
-        </Button>
-      </div>
+      <Link href="/" className="block mb-8 px-2" onClick={onClose}>
+        <h1 className="font-bold text-slate-900 text-xl tracking-tight">
+          Ucomp
+        </h1>
+        <p className="mt-0.5 text-slate-500 text-xs">Cybercafé Portal</p>
+      </Link>
 
       {/* Nav Items */}
       <nav className="flex flex-col gap-1">
@@ -89,7 +76,7 @@ export default function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              onClick={onMobileClose}
+              onClick={onClose}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors",
                 isActive
@@ -105,25 +92,34 @@ export default function Sidebar({
       </nav>
     </>
   );
+}
+
+export default function Sidebar({ role }: SidebarProps) {
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col bg-white px-4 py-6 border-r w-64 min-h-screen">
-        {sidebarContent}
+        <NavItems role={role} />
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
-      {isMobileOpen && (
-        <div className="md:hidden z-50 fixed inset-0 flex">
-          {/* Backdrop */}
-          <div className="fixed inset-0 bg-black/40" onClick={onMobileClose} />
-          {/* Sidebar Panel */}
-          <aside className="relative flex flex-col bg-white shadow-xl px-4 py-6 w-64 min-h-screen">
-            {sidebarContent}
-          </aside>
-        </div>
-      )}
+      {/* Mobile Sidebar Toggle Button */}
+      <div className="md:hidden bottom-6 left-6 z-50 fixed">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button
+              size="icon"
+              className="bg-slate-900 hover:bg-slate-700 shadow-lg rounded-full"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="px-4 py-6 w-64">
+            <NavItems role={role} onClose={() => setOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      </div>
     </>
   );
 }
