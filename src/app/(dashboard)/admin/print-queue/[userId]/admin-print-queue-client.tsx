@@ -46,6 +46,10 @@ interface AdminPrintQueueClientProps {
   queueItems: QueueItem[];
 }
 
+function isExpired(expiresAt: Date): boolean {
+  return new Date(expiresAt) < new Date();
+}
+
 function FileTypeIcon({ type }: { type: string }) {
   if (type === "JPG" || type === "PNG")
     return <Image className="w-8 h-8 text-blue-500" />;
@@ -58,7 +62,10 @@ export default function AdminPrintQueueClient({
   queueItems: initialQueueItems,
 }: AdminPrintQueueClientProps) {
   const router = useRouter();
-  const [queueItems, setQueueItems] = useState<QueueItem[]>(initialQueueItems);
+
+  const [queueItems, setQueueItems] = useState<QueueItem[]>(
+    initialQueueItems.filter((item) => !isExpired(item.expiresAt)),
+  );
   const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
   const [copies, setCopies] = useState("1");
   const [isPrinting, setIsPrinting] = useState(false);
@@ -206,7 +213,15 @@ export default function AdminPrintQueueClient({
               min="1"
               max="100"
               value={copies}
-              onChange={(e) => setCopies(e.target.value)}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                if (value > 100) {
+                  toast.error("Maximum copies allowed is 100.");
+                  setCopies("100");
+                  return;
+                }
+                setCopies(e.target.value);
+              }}
               className="mt-1.5"
             />
           </div>

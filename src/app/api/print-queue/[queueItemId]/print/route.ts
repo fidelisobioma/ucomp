@@ -25,6 +25,13 @@ export async function POST(
     const body = await req.json();
     const copies = parseInt(body.copies) || 1;
 
+    if (copies < 1 || copies > 100) {
+      return NextResponse.json(
+        { error: "Copies must be between 1 and 100" },
+        { status: 400 },
+      );
+    }
+
     const queueItem = await prisma.printQueueItem.findUnique({
       where: { id: queueItemId },
       include: { file: true, user: true },

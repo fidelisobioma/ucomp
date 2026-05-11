@@ -11,11 +11,12 @@ export default async function UserPrintQueuePage() {
   }
 
   const userId = (session.user as { id: string }).id;
+  const role = (session.user as { role: string }).role;
 
   const queueItems = await prisma.printQueueItem.findMany({
     where: {
       userId,
-      status: "PENDING",
+      status: { in: ["PENDING", "PRINTED"] },
     },
     include: {
       file: true,
@@ -27,5 +28,5 @@ export default async function UserPrintQueuePage() {
     orderBy: { createdAt: "desc" },
   });
 
-  return <UserPrintQueueClient initialQueueItems={queueItems} />;
+  return <UserPrintQueueClient initialQueueItems={queueItems} role={role} />;
 }
