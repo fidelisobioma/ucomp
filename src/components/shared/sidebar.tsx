@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -10,15 +9,15 @@ import {
   Users,
   ShieldCheck,
   Settings,
-  Menu,
+  X,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 
 type Role = "USER" | "ADMIN" | "SUPERADMIN";
 
 interface SidebarProps {
   role: Role;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 interface NavItem {
@@ -58,7 +57,6 @@ function NavItems({ role, onClose }: { role: Role; onClose?: () => void }) {
 
   return (
     <>
-      {/* Logo */}
       <Link href="/" className="block mb-8 px-2" onClick={onClose}>
         <h1 className="font-bold text-slate-900 text-xl tracking-tight">
           Ucomp
@@ -66,7 +64,6 @@ function NavItems({ role, onClose }: { role: Role; onClose?: () => void }) {
         <p className="mt-0.5 text-slate-500 text-xs">Cybercafé Portal</p>
       </Link>
 
-      {/* Nav Items */}
       <nav className="flex flex-col gap-1">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -94,9 +91,7 @@ function NavItems({ role, onClose }: { role: Role; onClose?: () => void }) {
   );
 }
 
-export default function Sidebar({ role }: SidebarProps) {
-  const [open, setOpen] = useState(false);
-
+export default function Sidebar({ role, open, onOpenChange }: SidebarProps) {
   return (
     <>
       {/* Desktop Sidebar */}
@@ -104,21 +99,30 @@ export default function Sidebar({ role }: SidebarProps) {
         <NavItems role={role} />
       </aside>
 
-      {/* Mobile Sidebar Toggle Button */}
-      <div className="md:hidden bottom-6 left-6 z-50 fixed">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button
-              size="icon"
-              className="bg-slate-900 hover:bg-slate-700 shadow-lg rounded-full"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="px-4 py-6 w-64">
-            <NavItems role={role} onClose={() => setOpen(false)} />
-          </SheetContent>
-        </Sheet>
+      {/* Mobile Backdrop */}
+      {open && (
+        <div
+          className="md:hidden z-40 fixed inset-0 bg-black/50"
+          onClick={() => onOpenChange(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar Panel */}
+      <div
+        className={cn(
+          "md:hidden top-0 left-0 z-50 fixed bg-white shadow-xl px-4 py-6 w-64 h-full transition-transform duration-300",
+          open ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        {/* Close Button */}
+        <button
+          className="top-4 right-4 absolute text-slate-500 hover:text-slate-900"
+          onClick={() => onOpenChange(false)}
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <NavItems role={role} onClose={() => onOpenChange(false)} />
       </div>
     </>
   );

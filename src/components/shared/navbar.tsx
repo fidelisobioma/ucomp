@@ -4,7 +4,6 @@ import { signOut } from "next-auth/react";
 import { LogOut, User, Menu } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,18 +13,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NotificationBell from "@/components/shared/notification-bell";
+import Link from "next/link";
 
 interface NavbarProps {
   userName: string;
   userEmail: string;
   role: string;
-  onMobileMenuOpen: () => void;
+  onMenuClick: () => void;
 }
 
 export default function Navbar({
   userName,
   userEmail,
-  onMobileMenuOpen,
+  role,
+  onMenuClick,
 }: NavbarProps) {
   const initials = userName
     .split(" ")
@@ -36,31 +37,33 @@ export default function Navbar({
 
   return (
     <header className="flex justify-between items-center bg-white px-6 border-b h-16">
-      {/* Left — Mobile hamburger + Logo */}
-      <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onMobileMenuOpen}
+      {/* Left — Mobile Menu Button + Logo */}
+      <div className="md:hidden flex items-center gap-3">
+        <button
+          className="text-slate-600 hover:text-slate-900"
+          onClick={onMenuClick}
         >
-          <Menu className="w-5 h-5 text-slate-600" />
-        </Button>
-        {/* <span className="md:hidden font-bold text-slate-900">Ucomp</span> */}
-        <Link href="/" className="group">
-          <h1 className="font-bold text-slate-900 group-hover:text-slate-600 text-xl tracking-tight transition-colors">
-            Ucomp
-          </h1>
+          <Menu className="w-6 h-6" />
+        </button>
+        <Link href="/" className="font-bold text-slate-900 text-lg">
+          Ucomp
         </Link>
       </div>
 
+      {/* Desktop — empty left side */}
+      <div className="hidden md:block" />
+
       {/* Right — Actions */}
-      <div className="flex items-center gap-3 ml-auto">
+      <div className="flex items-center gap-3">
         <NotificationBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="px-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="data-[state=open]:bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent px-2"
+            >
               <Avatar className="w-8 h-8">
                 <AvatarFallback className="bg-slate-100 font-medium text-slate-700 text-sm">
                   {initials}

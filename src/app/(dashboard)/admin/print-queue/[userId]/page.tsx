@@ -17,22 +17,12 @@ export default async function AdminUserPrintQueuePage({
   const { userId } = await params;
 
   const [user, queueItems] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true },
+    }),
     prisma.printQueueItem.findMany({
       where: { userId, status: "PENDING" },
-      include: {
-        file: true,
-        printLogs: {
-          orderBy: { printedAt: "desc" },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-
-    prisma.printQueueItem.findMany({
-      where: {
-        userId,
-        status: { in: ["PENDING", "PRINTED"] },
-      },
       include: {
         file: true,
         printLogs: {
