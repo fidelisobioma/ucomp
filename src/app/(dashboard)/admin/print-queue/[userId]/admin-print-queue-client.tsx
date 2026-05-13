@@ -91,12 +91,13 @@ export default function AdminPrintQueueClient({
 
       toast.success(`Document marked as printed — ${copies} cop(ies).`);
 
-      // Update queue items locally
+      // Update item in admin view — stays until expiry
       setQueueItems((prev) =>
         prev.map((item) =>
           item.id === selectedItem.id
             ? {
                 ...item,
+                status: "PRINTED",
                 printLogs: [
                   {
                     copies: parseInt(copies),

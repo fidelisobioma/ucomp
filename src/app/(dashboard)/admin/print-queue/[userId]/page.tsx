@@ -21,8 +21,12 @@ export default async function AdminUserPrintQueuePage({
       where: { id: userId },
       select: { id: true, name: true, email: true },
     }),
+
     prisma.printQueueItem.findMany({
-      where: { userId, status: "PENDING" },
+      where: {
+        userId,
+        status: { in: ["PENDING", "PRINTED"] },
+      },
       include: {
         file: true,
         printLogs: {
