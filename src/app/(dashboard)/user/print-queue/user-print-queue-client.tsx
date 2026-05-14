@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Image, Trash2, FileIcon, PrinterIcon } from "lucide-react";
+import {
+  FileText,
+  Image,
+  Trash2,
+  FileIcon,
+  PrinterIcon,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,12 +22,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import ExpiryTimer from "@/components/dashboard/expiry-timer";
+import AdminPicker from "@/components/dashboard/admin-picker";
 
 interface QueueItem {
   id: string;
   status: string;
   expiresAt: Date;
   createdAt: Date;
+  assignedAdmin: {
+    id: string;
+    name: string | null;
+    email: string;
+  } | null;
   file: {
     id: string;
     name: string;
@@ -40,12 +53,9 @@ interface UserPrintQueueClientProps {
 }
 
 function FileTypeIcon({ type }: { type: string }) {
-  if (type === "JPG" || type === "PNG") {
+  if (type === "JPG" || type === "PNG")
     return <Image className="w-8 h-8 text-blue-500" />;
-  }
-  if (type === "PDF") {
-    return <FileText className="w-8 h-8 text-red-500" />;
-  }
+  if (type === "PDF") return <FileText className="w-8 h-8 text-red-500" />;
   return <FileIcon className="w-8 h-8 text-slate-500" />;
 }
 
@@ -57,32 +67,32 @@ export default function UserPrintQueueClient({
   initialQueueItems,
   role,
 }: UserPrintQueueClientProps) {
+  console.log("QUEUE ITEMS:", JSON.stringify(initialQueueItems, null, 2));
   const isAdmin = role === "ADMIN" || role === "SUPERADMIN";
 
-  // Filter out expired items on the frontend
   const [queueItems, setQueueItems] = useState<QueueItem[]>(
     initialQueueItems.filter((item) => !isExpired(item.expiresAt)),
   );
   const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
+  const [reassignItem, setReassignItem] = useState<QueueItem | null>(null);
   const [printItem, setPrintItem] = useState<QueueItem | null>(null);
+  const [selectedAdminId, setSelectedAdminId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReassigning, setIsReassigning] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [copies, setCopies] = useState("1");
 
   async function handleDelete() {
     if (!selectedItem) return;
     setIsDeleting(true);
-
     try {
       const response = await fetch(`/api/print-queue/${selectedItem.id}`, {
         method: "DELETE",
       });
-
       if (!response.ok) {
         toast.error("Failed to remove from queue.");
         return;
       }
-
       setQueueItems((prev) =>
         prev.filter((item) => item.id !== selectedItem.id),
       );
@@ -95,25 +105,50 @@ export default function UserPrintQueueClient({
     }
   }
 
+  async function handleReassign() {
+    if (!reassignItem || !selectedAdminId) return;
+    setIsReassigning(true);
+    try {
+      const response = await fetch(
+        `/api/print-queue/${reassignItem.id}/reassign`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newAdminId: selectedAdminId }),
+        },
+      );
+      if (!response.ok) {
+        const result = await response.json();
+        toast.error(result.error ?? "Failed to reassign.");
+        return;
+      }
+      toast.success("Document reassigned successfully.");
+      // Refresh page to get updated admin info
+      window.location.reload();
+    } catch {
+      toast.error("Something went wrong.");
+    } finally {
+      setIsReassigning(false);
+      setReassignItem(null);
+      setSelectedAdminId(null);
+    }
+  }
+
   async function handlePrint() {
     if (!printItem) return;
     setIsPrinting(true);
-
     try {
       const response = await fetch(`/api/print-queue/${printItem.id}/print`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ copies: parseInt(copies) }),
       });
-
       if (!response.ok) {
         const result = await response.json();
         toast.error(result.error ?? "Failed to mark as printed.");
         return;
       }
-
       toast.success(`Document marked as printed — ${copies} cop(ies).`);
-
       setQueueItems((prev) =>
         prev.map((item) =>
           item.id === printItem.id
@@ -139,7 +174,6 @@ export default function UserPrintQueueClient({
 
   return (
     <div className="space-y-6 mx-auto max-w-4xl">
-      {/* Header */}
       <div>
         <h2 className="font-bold text-slate-900 text-2xl">
           {isAdmin ? "My Print Queue" : "Print Queue"}
@@ -147,7 +181,6 @@ export default function UserPrintQueueClient({
         <p className="mt-1 text-slate-500">Documents queued for printing</p>
       </div>
 
-      {/* Queue Items */}
       {queueItems.length === 0 ? (
         <div className="bg-white py-12 border rounded-lg text-center">
           <PrinterIcon className="mx-auto mb-3 w-10 h-10 text-slate-300" />
@@ -166,10 +199,10 @@ export default function UserPrintQueueClient({
               <div className="flex items-center gap-3">
                 <FileTypeIcon type={item.file.type} />
                 <div>
-                  <p className="max-w-[200px] font-medium text-slate-900 text-sm truncate">
+                  <p className="max-w-50 font-medium text-slate-900 text-sm truncate">
                     {item.file.name}
                   </p>
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
                     <Badge variant="secondary" className="text-xs">
                       {item.file.type}
                     </Badge>
@@ -178,12 +211,31 @@ export default function UserPrintQueueClient({
                         Printed {item.printLogs[0].copies} cop(ies)
                       </Badge>
                     )}
+                    {item.assignedAdmin && (
+                      <Badge className="bg-blue-100 text-blue-700 text-xs">
+                        → {item.assignedAdmin.name ?? item.assignedAdmin.email}
+                      </Badge>
+                    )}
                   </div>
                   <ExpiryTimer expiresAt={item.expiresAt} />
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Reassign button — only for PENDING items */}
+                {item.status === "PENDING" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setReassignItem(item)}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Reassign
+                  </Button>
+                )}
+
+                {/* Print button — admin only */}
                 {isAdmin && (
                   <Button
                     size="sm"
@@ -194,6 +246,7 @@ export default function UserPrintQueueClient({
                     Print
                   </Button>
                 )}
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -235,6 +288,52 @@ export default function UserPrintQueueClient({
               disabled={isDeleting}
             >
               {isDeleting ? "Removing..." : "Remove"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reassign Dialog */}
+      <Dialog
+        open={!!reassignItem}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReassignItem(null);
+            setSelectedAdminId(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reassign Document</DialogTitle>
+            <DialogDescription>
+              Select a new admin to send{" "}
+              <span className="font-medium text-slate-900">
+                {reassignItem?.file.name}
+              </span>{" "}
+              to.
+            </DialogDescription>
+          </DialogHeader>
+          <AdminPicker
+            selectedAdminId={selectedAdminId}
+            onSelect={setSelectedAdminId}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setReassignItem(null);
+                setSelectedAdminId(null);
+              }}
+              disabled={isReassigning}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleReassign}
+              disabled={isReassigning || !selectedAdminId}
+            >
+              {isReassigning ? "Reassigning..." : "Reassign"}
             </Button>
           </DialogFooter>
         </DialogContent>

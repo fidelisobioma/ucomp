@@ -18,6 +18,30 @@ export async function POST(
     }
 
     const { fileId } = await params;
+    const body = await req.json();
+    const { assignedAdminId } = body;
+
+    if (!assignedAdminId) {
+      return NextResponse.json(
+        { error: "Please select an admin to send your file to" },
+        { status: 400 },
+      );
+    }
+
+    // Verify assigned admin exists and is actually an admin
+    const assignedAdmin = await prisma.user.findUnique({
+      where: {
+        id: assignedAdminId,
+        role: { in: ["ADMIN", "SUPERADMIN"] },
+      },
+    });
+
+    if (!assignedAdmin) {
+      return NextResponse.json(
+        { error: "Selected admin not found" },
+        { status: 404 },
+      );
+    }
 
     // Find file and verify ownership
     const file = await prisma.file.findUnique({
@@ -36,7 +60,7 @@ export async function POST(
     const existingQueueItem = await prisma.printQueueItem.findFirst({
       where: {
         fileId,
-        status: "PENDING",
+        status: { in: ["PENDING", "PRINTED"] },
       },
     });
 
@@ -51,29 +75,23 @@ export async function POST(
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
 
-    // Create print queue item
+    // Create print queue item with assigned admin
     const queueItem = await prisma.printQueueItem.create({
       data: {
         fileId,
         userId: token.id as string,
+        assignedAdminId,
         expiresAt,
       },
     });
 
-    // Notify all admins
-    const admins = await prisma.user.findMany({
-      where: {
-        role: { in: ["ADMIN", "SUPERADMIN"] },
+    // Notify only the selected admin
+    await prisma.notification.create({
+      data: {
+        userId: assignedAdminId,
+        message: `A new document "${file.name}" has been sent to you for printing.`,
+        type: "PRINT",
       },
-      select: { id: true },
-    });
-
-    await prisma.notification.createMany({
-      data: admins.map((admin) => ({
-        userId: admin.id,
-        message: `A new document "${file.name}" has been added to the print queue.`,
-        type: "PRINT" as const,
-      })),
     });
 
     return NextResponse.json({ queueItemId: queueItem.id });

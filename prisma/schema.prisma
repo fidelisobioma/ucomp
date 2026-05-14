@@ -53,15 +53,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Relations
-  files           File[]
-  printQueueItems PrintQueueItem[]
-  notifications   Notification[]
-  printLogs       PrintLog[]
-
-  // NextAuth relations
-  accounts Account[]
-  sessions Session[]
+  files                File[]
+  printQueueItems      PrintQueueItem[]
+  assignedQueueItems   PrintQueueItem[] @relation("AssignedAdmin")
+  notifications        Notification[]
+  printLogs            PrintLog[]
+  accounts             Account[]
+  sessions             Session[]
 }
 
 // ============== NEXTAUTH MODELS ==============
@@ -119,17 +117,19 @@ model File {
 }
 
 model PrintQueueItem {
-  id        String           @id @default(uuid())
-  fileId    String
-  userId    String
-  status    PrintQueueStatus @default(PENDING)
-  expiresAt DateTime
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id              String           @id @default(uuid())
+  fileId          String
+  userId          String
+  assignedAdminId String?
+  status          PrintQueueStatus @default(PENDING)
+  expiresAt       DateTime
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  file      File       @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  printLogs PrintLog[]
+  file          File       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAdmin User?      @relation("AssignedAdmin", fields: [assignedAdminId], references: [id])
+  printLogs     PrintLog[]
 }
 
 model PrintLog {

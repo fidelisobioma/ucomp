@@ -5,10 +5,11 @@ import AdminUsersClient from "./admin-users-client";
 
 export default async function AdminUsersPage() {
   const session = await auth();
-
   if (!session?.user) redirect("/sign-in");
 
   const role = (session.user as { role: string }).role;
+  const adminId = (session.user as { id: string }).id;
+
   if (role !== "ADMIN" && role !== "SUPERADMIN") redirect("/sign-in");
 
   const users = await prisma.user.findMany({
@@ -21,7 +22,10 @@ export default async function AdminUsersPage() {
       _count: {
         select: {
           printQueueItems: {
-            where: { status: "PENDING" },
+            where: {
+              assignedAdminId: adminId,
+              status: "PENDING",
+            },
           },
         },
       },

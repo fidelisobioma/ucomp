@@ -24,6 +24,9 @@ export default async function UserPrintQueuePage() {
         orderBy: { printedAt: "desc" },
         take: 1,
       },
+      assignedAdmin: {
+        select: { id: true, name: true, email: true },
+      },
     },
     orderBy: { createdAt: "desc" },
   });

@@ -12,6 +12,8 @@ export default async function AdminUserPrintQueuePage({
   if (!session?.user) redirect("/sign-in");
 
   const role = (session.user as { role: string }).role;
+  const adminId = (session.user as { id: string }).id;
+
   if (role !== "ADMIN" && role !== "SUPERADMIN") redirect("/sign-in");
 
   const { userId } = await params;
@@ -21,10 +23,10 @@ export default async function AdminUserPrintQueuePage({
       where: { id: userId },
       select: { id: true, name: true, email: true },
     }),
-
     prisma.printQueueItem.findMany({
       where: {
         userId,
+        assignedAdminId: adminId,
         status: { in: ["PENDING", "PRINTED"] },
       },
       include: {

@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import AdminPicker from "@/components/dashboard/admin-picker";
 
 interface FileCardProps {
   file: {
@@ -50,6 +51,7 @@ export default function FileCard({
 }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showMoveDialog, setShowMoveDialog] = useState(false);
+  const [selectedAdminId, setSelectedAdminId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
 
@@ -76,10 +78,17 @@ export default function FileCard({
   }
 
   async function handleMoveToQueue() {
+    if (!selectedAdminId) {
+      toast.error("Please select an admin first.");
+      return;
+    }
+
     setIsMoving(true);
     try {
       const response = await fetch(`/api/files/${file.id}/move-to-queue`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignedAdminId: selectedAdminId }),
       });
 
       if (!response.ok) {
@@ -95,6 +104,7 @@ export default function FileCard({
     } finally {
       setIsMoving(false);
       setShowMoveDialog(false);
+      setSelectedAdminId(null);
     }
   }
 
@@ -170,26 +180,43 @@ export default function FileCard({
       </Dialog>
 
       {/* Move to Queue Dialog */}
-      <Dialog open={showMoveDialog} onOpenChange={setShowMoveDialog}>
+      <Dialog
+        open={showMoveDialog}
+        onOpenChange={(open) => {
+          setShowMoveDialog(open);
+          if (!open) setSelectedAdminId(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Move to Print Queue</DialogTitle>
             <DialogDescription>
-              Move{" "}
-              <span className="font-medium text-slate-900">{file.name}</span> to
-              the print queue? Admins will be notified and can print it. The
-              document will auto-delete from the queue after 24 hours.
+              Select an admin to send{" "}
+              <span className="font-medium text-slate-900">{file.name}</span>{" "}
+              to. The document will auto-delete from the queue after 24 hours.
             </DialogDescription>
           </DialogHeader>
+
+          <AdminPicker
+            selectedAdminId={selectedAdminId}
+            onSelect={setSelectedAdminId}
+          />
+
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowMoveDialog(false)}
+              onClick={() => {
+                setShowMoveDialog(false);
+                setSelectedAdminId(null);
+              }}
               disabled={isMoving}
             >
               Cancel
             </Button>
-            <Button onClick={handleMoveToQueue} disabled={isMoving}>
+            <Button
+              onClick={handleMoveToQueue}
+              disabled={isMoving || !selectedAdminId}
+            >
               {isMoving ? "Moving..." : "Move to Queue"}
             </Button>
           </DialogFooter>
