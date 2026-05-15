@@ -9,8 +9,7 @@ import {
   PrinterIcon,
   RefreshCw,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import {
   Dialog,
   DialogContent,
@@ -23,7 +22,10 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import ExpiryTimer from "@/components/dashboard/expiry-timer";
 import AdminPicker from "@/components/dashboard/admin-picker";
-
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import FilePreview from "@/components/dashboard/file-preview";
+import { Eye } from "lucide-react";
 interface QueueItem {
   id: string;
   status: string;
@@ -67,7 +69,6 @@ export default function UserPrintQueueClient({
   initialQueueItems,
   role,
 }: UserPrintQueueClientProps) {
-  console.log("QUEUE ITEMS:", JSON.stringify(initialQueueItems, null, 2));
   const isAdmin = role === "ADMIN" || role === "SUPERADMIN";
 
   const [queueItems, setQueueItems] = useState<QueueItem[]>(
@@ -81,6 +82,9 @@ export default function UserPrintQueueClient({
   const [isReassigning, setIsReassigning] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [copies, setCopies] = useState("1");
+  const [previewFile, setPreviewFile] = useState<QueueItem["file"] | null>(
+    null,
+  );
 
   async function handleDelete() {
     if (!selectedItem) return;
@@ -234,6 +238,14 @@ export default function UserPrintQueueClient({
                     Reassign
                   </Button>
                 )}
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPreviewFile(item.file)}
+                >
+                  <Eye className="w-4 h-4 text-slate-500" />
+                </Button>
 
                 {/* Print button — admin only */}
                 {isAdmin && (
@@ -397,6 +409,17 @@ export default function UserPrintQueueClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* File Preview */}
+      {previewFile && (
+        <FilePreview
+          open={!!previewFile}
+          onOpenChange={(open) => {
+            if (!open) setPreviewFile(null);
+          }}
+          file={previewFile}
+        />
+      )}
     </div>
   );
 }

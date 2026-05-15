@@ -22,6 +22,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import ExpiryTimer from "@/components/dashboard/expiry-timer";
+import FilePreview from "@/components/dashboard/file-preview";
+import { Eye } from "lucide-react";
 
 interface QueueItem {
   id: string;
@@ -69,6 +71,9 @@ export default function AdminPrintQueueClient({
   const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
   const [copies, setCopies] = useState("1");
   const [isPrinting, setIsPrinting] = useState(false);
+  const [previewFile, setPreviewFile] = useState<QueueItem["file"] | null>(
+    null,
+  );
 
   async function handleMarkAsPrinted() {
     if (!selectedItem) return;
@@ -172,14 +177,24 @@ export default function AdminPrintQueueClient({
                 </div>
               </div>
 
-              <Button
-                size="sm"
-                className="gap-1.5"
-                onClick={() => setSelectedItem(item)}
-              >
-                <PrinterIcon className="w-3.5 h-3.5" />
-                Print
-              </Button>
+              <div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPreviewFile(item.file)}
+                >
+                  <Eye className="w-4 h-4 text-slate-500" />
+                </Button>
+
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setSelectedItem(item)}
+                >
+                  <PrinterIcon className="w-3.5 h-3.5" />
+                  Print
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -245,6 +260,17 @@ export default function AdminPrintQueueClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* File Preview */}
+      {previewFile && (
+        <FilePreview
+          open={!!previewFile}
+          onOpenChange={(open) => {
+            if (!open) setPreviewFile(null);
+          }}
+          file={previewFile}
+        />
+      )}
     </div>
   );
 }

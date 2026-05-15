@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Image, Trash2, MoveRight, FileIcon } from "lucide-react";
+import {
+  FileText,
+  Image,
+  Trash2,
+  MoveRight,
+  FileIcon,
+  Eye,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import AdminPicker from "@/components/dashboard/admin-picker";
+import FilePreview from "@/components/dashboard/file-preview";
 
 interface FileCardProps {
   file: {
@@ -51,6 +59,7 @@ export default function FileCard({
 }: FileCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showMoveDialog, setShowMoveDialog] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [selectedAdminId, setSelectedAdminId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
@@ -61,12 +70,10 @@ export default function FileCard({
       const response = await fetch(`/api/files/${file.id}`, {
         method: "DELETE",
       });
-
       if (!response.ok) {
         toast.error("Failed to delete file. Please try again.");
         return;
       }
-
       toast.success("File deleted successfully.");
       onDelete(file.id);
     } catch {
@@ -82,7 +89,6 @@ export default function FileCard({
       toast.error("Please select an admin first.");
       return;
     }
-
     setIsMoving(true);
     try {
       const response = await fetch(`/api/files/${file.id}/move-to-queue`, {
@@ -90,13 +96,11 @@ export default function FileCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assignedAdminId: selectedAdminId }),
       });
-
       if (!response.ok) {
         const result = await response.json();
         toast.error(result.error ?? "Failed to move file to queue.");
         return;
       }
-
       toast.success("File moved to print queue.");
       onMoveToQueue(file.id);
     } catch {
@@ -130,6 +134,13 @@ export default function FileCard({
 
         <div className="flex items-center gap-2">
           <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowPreview(true)}
+          >
+            <Eye className="w-4 h-4 text-slate-500" />
+          </Button>
+          <Button
             variant="outline"
             size="sm"
             className="gap-1.5"
@@ -148,6 +159,13 @@ export default function FileCard({
           </Button>
         </div>
       </div>
+
+      {/* File Preview */}
+      <FilePreview
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        file={file}
+      />
 
       {/* Delete Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -196,12 +214,10 @@ export default function FileCard({
               to. The document will auto-delete from the queue after 24 hours.
             </DialogDescription>
           </DialogHeader>
-
           <AdminPicker
             selectedAdminId={selectedAdminId}
             onSelect={setSelectedAdminId}
           />
-
           <DialogFooter>
             <Button
               variant="outline"
