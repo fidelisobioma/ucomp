@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 
 interface FilePreviewProps {
   open: boolean;
@@ -37,11 +38,14 @@ export default function FilePreview({
 
         <div className="flex flex-1 justify-center items-center bg-slate-50 border rounded-lg min-h-[400px] overflow-hidden">
           {isImage && (
-            <img
-              src={file.url}
-              alt={file.name}
-              className="rounded max-w-full max-h-[60vh] object-contain"
-            />
+            <div className="relative w-full h-[60vh]">
+              <Image
+                src={file.url}
+                alt={file.name}
+                fill
+                className="rounded object-contain"
+              />
+            </div>
           )}
 
           {isPDF && (
@@ -60,26 +64,14 @@ export default function FilePreview({
                   Preview not available for Word documents
                 </p>
                 <p className="mt-1 text-slate-500 text-sm">
-                  Download the file to view it in Microsoft Word or Google Docs
+                  Please print the document to view its contents
                 </p>
               </div>
-              <Button asChild>
-                <a href={file.url} download={file.name} target="_blank">
-                  <Download className="mr-2 w-4 h-4" />
-                  Download to View
-                </a>
-              </Button>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" asChild>
-            <a href={file.url} download={file.name} target="_blank">
-              <Download className="mr-2 w-4 h-4" />
-              Download
-            </a>
-          </Button>
+        <div className="flex justify-end pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

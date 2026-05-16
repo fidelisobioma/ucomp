@@ -53,8 +53,8 @@ export default function Hero() {
               <Image
                 src={slide.image}
                 alt={slide.alt}
-                className="w-full h-full object-cover"
                 fill
+                className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/50" />
             </div>
