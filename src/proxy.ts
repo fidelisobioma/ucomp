@@ -13,19 +13,24 @@ export async function proxy(req: NextRequest) {
 
   const isAuthRoute =
     nextUrl.pathname.startsWith("/sign-in") ||
-    nextUrl.pathname.startsWith("/sign-up");
+    nextUrl.pathname.startsWith("/sign-up") ||
+    nextUrl.pathname.startsWith("/forgot-password") ||
+    nextUrl.pathname.startsWith("/reset-password");
 
   const isPublicRoute = nextUrl.pathname === "/";
   const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
 
+  // Logged in users cannot access auth routes
   if (isAuthRoute && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
+  // Logged out users cannot access dashboard
   if (isDashboardRoute && !isLoggedIn) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl));
   }
 
+  // Logged out users cannot access protected routes
   if (!isLoggedIn && !isAuthRoute && !isPublicRoute) {
     return NextResponse.redirect(new URL("/sign-in", nextUrl));
   }

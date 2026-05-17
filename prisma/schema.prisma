@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -43,23 +38,28 @@ enum NotificationType {
 // ============== MODELS ==============
 
 model User {
-  id           String   @id @default(uuid())
-  name         String?
-  email        String   @unique
-  password     String?
-  role         Role     @default(USER)
-  storageUsed  Int      @default(0)
-  storageLimit Int      @default(209715200)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role      @default(USER)
+  storageUsed   Int       @default(0)
+  storageLimit  Int       @default(209715200)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
+  // Relations
   files                File[]
   printQueueItems      PrintQueueItem[]
-  assignedQueueItems   PrintQueueItem[] @relation("AssignedAdmin")
+  assignedQueueItems   PrintQueueItem[]   @relation("AssignedAdmin")
   notifications        Notification[]
   printLogs            PrintLog[]
   accounts             Account[]
   sessions             Session[]
+  passwordResetTokens  PasswordResetToken[]
+  emailChangeTokens    EmailChangeToken[]
 }
 
 // ============== NEXTAUTH MODELS ==============
@@ -98,6 +98,29 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ============== TOKEN MODELS ==============
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailChangeToken {
+  id        String   @id @default(uuid())
+  userId    String
+  newEmail  String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ============== APP MODELS ==============

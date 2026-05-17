@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { signInSchema } from "./validations/auth";
 
 export const authConfig: NextAuthConfig = {
@@ -11,8 +12,9 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        token.id = user.id as string;
+        token.role = user.role as string;
+        token.image = user.image ?? null;
       }
       return token;
     },
@@ -20,6 +22,7 @@ export const authConfig: NextAuthConfig = {
       if (token) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.image = token.image as string | null;
       }
       return session;
     },
@@ -28,6 +31,10 @@ export const authConfig: NextAuthConfig = {
     },
   },
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },

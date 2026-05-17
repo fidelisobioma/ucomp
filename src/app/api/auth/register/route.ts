@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signUpSchema } from "@/lib/validations/auth";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Validate request body against schema
     const result = signUpSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
 
     const { name, email, password } = result.data;
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -30,10 +29,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hash password before storing
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user in database
     const user = await prisma.user.create({
       data: {
         name,
@@ -41,6 +38,9 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
       },
     });
+
+    // Send welcome email
+    await sendWelcomeEmail(email, name);
 
     return NextResponse.json(
       { message: "Account created successfully", userId: user.id },
