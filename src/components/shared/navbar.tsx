@@ -1,8 +1,7 @@
-"use client";
-
+import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { LogOut, User, Menu } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { LogOut, Settings, Menu } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,12 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NotificationBell from "@/components/shared/notification-bell";
-import Link from "next/link";
 
 interface NavbarProps {
   userName: string;
   userEmail: string;
   role: string;
+  userImage?: string | null;
   onMenuClick: () => void;
 }
 
@@ -26,6 +25,7 @@ export default function Navbar({
   userName,
   userEmail,
   role,
+  userImage,
   onMenuClick,
 }: NavbarProps) {
   const initials = userName
@@ -65,6 +65,7 @@ export default function Navbar({
               className="data-[state=open]:bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent px-2"
             >
               <Avatar className="w-8 h-8">
+                {userImage && <AvatarImage src={userImage} alt={userName} />}
                 <AvatarFallback className="bg-slate-100 font-medium text-slate-700 text-sm">
                   {initials}
                 </AvatarFallback>
@@ -82,9 +83,11 @@ export default function Navbar({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2">
-              <User className="w-4 h-4" />
-              Profile
+            <DropdownMenuItem asChild className="gap-2">
+              <Link href="/settings">
+                <Settings className="w-4 h-4" />
+                Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

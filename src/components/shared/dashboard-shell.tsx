@@ -11,6 +11,7 @@ interface DashboardShellProps {
   name: string;
   email: string;
   role: Role;
+  userImage?: string | null;
 }
 
 export default function DashboardShell({
@@ -18,6 +19,7 @@ export default function DashboardShell({
   name,
   email,
   role,
+  userImage,
 }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -29,6 +31,7 @@ export default function DashboardShell({
           userName={name}
           userEmail={email}
           role={role}
+          userImage={userImage}
           onMenuClick={() => setSidebarOpen(true)}
         />
         <main className="flex-1 p-6">{children}</main>

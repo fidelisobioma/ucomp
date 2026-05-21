@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,6 +99,9 @@ export default function HomeNavbar() {
                   )}
                 >
                   <Avatar className="w-8 h-8">
+                    {session?.user?.image && (
+                      <AvatarImage src={session.user.image} alt={userName} />
+                    )}
                     <AvatarFallback
                       className={cn(
                         "font-medium text-sm",

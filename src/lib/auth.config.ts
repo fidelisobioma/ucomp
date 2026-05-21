@@ -10,12 +10,19 @@ export const authConfig: NextAuthConfig = {
     error: "/sign-in",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id as string;
         token.role = user.role as string;
         token.image = user.image ?? null;
       }
+
+      // Force update session when triggered
+      if (trigger === "update" && session) {
+        token.image = session.image ?? token.image;
+        token.name = session.name ?? token.name;
+      }
+
       return token;
     },
     async session({ session, token }) {

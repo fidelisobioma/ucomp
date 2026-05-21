@@ -106,7 +106,7 @@ export default function SignInPage() {
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <Link
                   href="/forgot-password"
-                  className="border border-red-400 text-slate-500 hover:text-slate-900 text-xs"
+                  className="text-slate-500 hover:text-slate-900 text-xs"
                 >
                   Forgot password?
                 </Link>

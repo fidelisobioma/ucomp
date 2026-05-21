@@ -19,7 +19,11 @@ export default async function PrivateFolderPage() {
     }),
     prisma.user.findUnique({
       where: { id: userId },
-      select: { storageUsed: true, storageLimit: true },
+      select: {
+        storageUsed: true,
+        storageLimit: true,
+        plan: true,
+      },
     }),
   ]);
 
@@ -27,7 +31,8 @@ export default async function PrivateFolderPage() {
     <PrivateFolderClient
       initialFiles={files}
       storageUsed={user?.storageUsed ?? 0}
-      storageLimit={user?.storageLimit ?? 209715200}
+      storageLimit={user?.storageLimit ?? 20971520}
+      plan={user?.plan ?? "FREE"}
     />
   );
 }

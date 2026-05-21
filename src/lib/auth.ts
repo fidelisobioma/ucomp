@@ -13,6 +13,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "jwt",
   },
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id as string;
+        token.role = user.role as string;
+        token.image = user.image ?? null;
+      }
+
+      // Always fetch latest data from DB on every request
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { image: true, role: true, name: true },
+        });
+        if (dbUser) {
+          token.image = dbUser.image;
+          token.role = dbUser.role;
+          token.name = dbUser.name;
+        }
+      }
+
+      return token;
+    },
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,

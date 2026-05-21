@@ -19,6 +19,7 @@ export default async function RolesPage() {
       name: true,
       email: true,
       role: true,
+      plan: true,
       storageLimit: true,
       storageUsed: true,
       createdAt: true,

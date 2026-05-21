@@ -8,9 +8,9 @@ const plans = [
     name: "Free",
     price: "₦0",
     description: "Perfect for occasional printing and document storage.",
-    storage: "200MB",
+    storage: "20MB",
     features: [
-      "200MB private storage",
+      "20MB private storage",
       "PDF, DOCX, JPG, PNG support",
       "Print queue access",
       "In-app notifications",
@@ -23,8 +23,8 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "Coming Soon",
-    description: "For regular users who need more storage and features.",
+    price: "₦2,500/mo",
+    description: "For regular users who need more storage.",
     storage: "1GB",
     features: [
       "1GB private storage",
@@ -34,14 +34,14 @@ const plans = [
       "Documents never deleted",
       "Priority support",
     ],
-    cta: "Coming Soon",
-    href: "/sign-up",
+    cta: "Contact Us",
+    href: "mailto:hello@ucomp.com",
     highlighted: true,
   },
   {
     name: "Max",
-    price: "Coming Soon",
-    description: "For power users and businesses with large storage needs.",
+    price: "₦8,000/mo",
+    description: "For power users with large storage needs.",
     storage: "5GB",
     features: [
       "5GB private storage",
@@ -51,8 +51,8 @@ const plans = [
       "Documents never deleted",
       "24/7 support",
     ],
-    cta: "Coming Soon",
-    href: "/sign-up",
+    cta: "Contact Us",
+    href: "mailto:hello@ucomp.com",
     highlighted: false,
   },
 ];

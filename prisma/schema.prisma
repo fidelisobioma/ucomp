@@ -35,20 +35,34 @@ enum NotificationType {
   ROLE_CHANGE
 }
 
+enum Plan {
+  FREE
+  PREMIUM
+  MAX
+}
+
+enum PlanStatus {
+  ACTIVE
+  GRACE
+  EXPIRED
+}
 // ============== MODELS ==============
 
 model User {
-  id            String    @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String?
-  email         String    @unique
+  email         String      @unique
   emailVerified DateTime?
   password      String?
   image         String?
-  role          Role      @default(USER)
-  storageUsed   Int       @default(0)
-  storageLimit  Int       @default(209715200)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          Role        @default(USER)
+  plan          Plan        @default(FREE)
+  planStatus    PlanStatus  @default(ACTIVE)
+  planExpiresAt DateTime?
+  storageUsed   Int         @default(0)
+  storageLimit  Int         @default(20971520) // 20MB in bytes
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   // Relations
   files                File[]

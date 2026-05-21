@@ -1,6 +1,6 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { getToken } from "next-auth/jwt";
-import { headers } from "next/headers";
+// import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -17,7 +17,6 @@ export const ourFileRouter = {
     },
   })
     .middleware(async ({ req }) => {
-      // Authenticate user
       const token = await getToken({
         req: req as unknown as NextRequest,
         secret: process.env.AUTH_SECRET,
@@ -26,14 +25,12 @@ export const ourFileRouter = {
 
       if (!token?.id) throw new Error("Unauthorized");
 
-      // Check storage limit
       const user = await prisma.user.findUnique({
         where: { id: token.id as string },
         select: { storageUsed: true, storageLimit: true },
       });
 
       if (!user) throw new Error("User not found");
-
       if (user.storageUsed >= user.storageLimit) {
         throw new Error("Storage limit reached");
       }
@@ -41,7 +38,6 @@ export const ourFileRouter = {
       return { userId: token.id as string };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // Determine file type
       const getFileType = (name: string) => {
         const ext = name.split(".").pop()?.toLowerCase();
         if (ext === "pdf") return "PDF";
@@ -51,7 +47,6 @@ export const ourFileRouter = {
         return "PDF";
       };
 
-      // Save file metadata to database
       const savedFile = await prisma.file.create({
         data: {
           name: file.name,
@@ -62,13 +57,36 @@ export const ourFileRouter = {
         },
       });
 
-      // Update user storage
       await prisma.user.update({
         where: { id: metadata.userId },
         data: { storageUsed: { increment: file.size } },
       });
 
       return { fileId: savedFile.id };
+    }),
+
+  // Avatar uploader
+  avatarUploader: f({
+    image: { maxFileSize: "4MB", maxFileCount: 1 },
+  })
+    .middleware(async ({ req }) => {
+      const token = await getToken({
+        req: req as unknown as NextRequest,
+        secret: process.env.AUTH_SECRET,
+        cookieName: "authjs.session-token",
+      });
+
+      if (!token?.id) throw new Error("Unauthorized");
+
+      return { userId: token.id as string };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      await prisma.user.update({
+        where: { id: metadata.userId },
+        data: { image: file.url },
+      });
+
+      return { imageUrl: file.url };
     }),
 } satisfies FileRouter;
 

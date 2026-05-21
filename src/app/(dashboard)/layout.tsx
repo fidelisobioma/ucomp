@@ -13,14 +13,15 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
-  const { name, email, role } = session.user as {
+  const { name, email, role, image } = session.user as {
     name: string;
     email: string;
     role: "USER" | "ADMIN" | "SUPERADMIN";
+    image?: string | null;
   };
 
   return (
-    <DashboardShell name={name} email={email} role={role}>
+    <DashboardShell name={name} email={email} role={role} userImage={image}>
       {children}
     </DashboardShell>
   );
