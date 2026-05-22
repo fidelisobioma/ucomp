@@ -6,8 +6,8 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  testPathPattern: ["**/__tests__/**/*.test.ts"],
-  setupFilesAfterFramework: ["<rootDir>/jest.setup.ts"],
+  testMatch: ["**/__tests__/**/*.test.ts"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 };
 
 export default config;
