@@ -34,6 +34,12 @@ const services = [
       "Professional studio photography sessions for portraits, events, and more.",
   },
   {
+    icon: Camera,
+    title: "Event Photography",
+    description:
+      "Professional photography coverage for events, conferences, ceremonies and special occasions.",
+  },
+  {
     icon: FileText,
     title: "Typing",
     description:
