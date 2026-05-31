@@ -17,7 +17,9 @@ export async function proxy(req: NextRequest) {
     nextUrl.pathname.startsWith("/forgot-password") ||
     nextUrl.pathname.startsWith("/reset-password");
 
-  const isPublicRoute = nextUrl.pathname === "/";
+  // const isPublicRoute = nextUrl.pathname === "/";
+  const isPublicRoute =
+    nextUrl.pathname === "/" || nextUrl.pathname.startsWith("/blog");
   const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
 
   // Logged in users cannot access auth routes

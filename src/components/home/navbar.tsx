@@ -16,19 +16,25 @@ import {
 import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface HomeNavbarProps {
+  solid?: boolean;
+}
+
 const navLinks = [
   { label: "Home", href: "#home" },
   { label: "Features", href: "#features" },
   { label: "Services", href: "#services" },
   { label: "Pricing", href: "#pricing" },
+  { label: "Blog", href: "/blog" },
   { label: "FAQ", href: "#faq" },
 ];
 
-export default function HomeNavbar() {
+export default function HomeNavbar({ solid = false }: HomeNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session } = useSession();
 
+  const isSolid = solid || isScrolled;
   const isLoggedIn = !!session?.user;
   const userName = session?.user?.name ?? "User";
   const userEmail = session?.user?.email ?? "";
@@ -51,7 +57,7 @@ export default function HomeNavbar() {
     <header
       className={cn(
         "top-0 right-0 left-0 z-50 fixed transition-all duration-300",
-        isScrolled
+        isSolid
           ? "bg-white/95 backdrop-blur-sm border-b shadow-sm"
           : "bg-transparent",
       )}
@@ -62,7 +68,7 @@ export default function HomeNavbar() {
           href="/"
           className={cn(
             "font-bold text-xl transition-colors",
-            isScrolled ? "text-slate-900" : "text-white",
+            isSolid ? "text-slate-900" : "text-white",
           )}
         >
           Ucomp
@@ -76,7 +82,7 @@ export default function HomeNavbar() {
               href={link.href}
               className={cn(
                 "font-medium text-sm transition-colors",
-                isScrolled
+                isSolid
                   ? "text-slate-600 hover:text-slate-900"
                   : "text-white/90 hover:text-white",
               )}
@@ -105,7 +111,7 @@ export default function HomeNavbar() {
                     <AvatarFallback
                       className={cn(
                         "font-medium text-sm",
-                        isScrolled
+                        isSolid
                           ? "bg-slate-100 text-slate-700"
                           : "bg-white/20 text-white border border-white/30",
                       )}
@@ -149,7 +155,7 @@ export default function HomeNavbar() {
                 asChild
                 className={cn(
                   "transition-colors",
-                  !isScrolled &&
+                  !isSolid &&
                     "border-white/50 text-slate-800 hover:bg-white/20 hover:text-slate-900",
                 )}
               >
@@ -160,7 +166,7 @@ export default function HomeNavbar() {
                 asChild
                 className={cn(
                   "transition-colors",
-                  isScrolled
+                  isSolid
                     ? "bg-slate-900 text-white hover:bg-slate-700"
                     : "bg-white text-slate-900 hover:bg-slate-900 hover:text-white",
                 )}
@@ -180,14 +186,14 @@ export default function HomeNavbar() {
             <X
               className={cn(
                 "w-6 h-6",
-                isScrolled ? "text-slate-900" : "text-white",
+                isSolid ? "text-slate-900" : "text-white",
               )}
             />
           ) : (
             <Menu
               className={cn(
                 "w-6 h-6",
-                isScrolled ? "text-slate-900" : "text-white",
+                isSolid ? "text-slate-900" : "text-white",
               )}
             />
           )}

@@ -46,6 +46,7 @@ enum PlanStatus {
   GRACE
   EXPIRED
 }
+
 // ============== MODELS ==============
 
 model User {
@@ -74,6 +75,7 @@ model User {
   sessions             Session[]
   passwordResetTokens  PasswordResetToken[]
   emailChangeTokens    EmailChangeToken[]
+  blogPosts BlogPost[]
 }
 
 // ============== NEXTAUTH MODELS ==============
@@ -189,4 +191,29 @@ model Notification {
   createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BlogCategory {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  posts BlogPost[]
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String
+  coverImage  String?
+  categoryId  String
+  published   Boolean  @default(false)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author   User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }

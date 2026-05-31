@@ -65,9 +65,9 @@ export default function Footer() {
           <div>
             <h4 className="mb-4 font-semibold text-sm">Contact Us</h4>
             <ul className="space-y-3 text-slate-400 text-sm">
-              <li>📧 hello@ucomp.com</li>
-              <li>📍 123 Placeholder Street, Aba, Abia State, Nigeria</li>
-              <li>🕒 Mon - Sat: 8:00 AM - 8:00 PM</li>
+              <li>hello@ucomp.com</li>
+              <li>123 Placeholder Street, Aba, Abia State, Nigeria</li>
+              <li> Mon - Sat: 8:00 AM - 8:00 PM</li>
             </ul>
           </div>
         </div>

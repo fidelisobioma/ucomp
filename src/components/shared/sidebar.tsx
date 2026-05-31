@@ -9,6 +9,8 @@ import {
   Users,
   ShieldCheck,
   Settings,
+  PenLine,
+  FolderOpen,
   X,
 } from "lucide-react";
 
@@ -35,12 +37,24 @@ const adminNavItems: NavItem[] = [
   { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
   { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
   { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Blog Posts", href: "/admin/blog", icon: PenLine },
+  {
+    label: "Blog Categories",
+    href: "/admin/blog/categories",
+    icon: FolderOpen,
+  },
 ];
 
 const superAdminNavItems: NavItem[] = [
   { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
   { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
   { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Blog Posts", href: "/admin/blog", icon: PenLine },
+  {
+    label: "Blog Categories",
+    href: "/admin/blog/categories",
+    icon: FolderOpen,
+  },
   { label: "Role Management", href: "/super-admin/roles", icon: ShieldCheck },
   { label: "Settings", href: "/super-admin/settings", icon: Settings },
 ];

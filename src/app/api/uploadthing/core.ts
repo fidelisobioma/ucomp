@@ -88,6 +88,27 @@ export const ourFileRouter = {
 
       return { imageUrl: file.url };
     }),
+
+  blogCoverUploader: f({
+    image: { maxFileSize: "8MB", maxFileCount: 1 },
+  })
+    .middleware(async ({ req }) => {
+      const token = await getToken({
+        req: req as unknown as NextRequest,
+        secret: process.env.AUTH_SECRET,
+        cookieName: "authjs.session-token",
+      });
+
+      if (!token?.id) throw new Error("Unauthorized");
+      if (token.role !== "ADMIN" && token.role !== "SUPERADMIN") {
+        throw new Error("Unauthorized");
+      }
+
+      return { userId: token.id as string };
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { imageUrl: file.url };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
