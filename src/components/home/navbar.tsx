@@ -21,12 +21,12 @@ interface HomeNavbarProps {
 }
 
 const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "Features", href: "#features" },
-  { label: "Services", href: "#services" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Home", href: "/" },
+  { label: "Features", href: "/#features" },
+  { label: "Services", href: "/#services" },
+  { label: "Pricing", href: "/#pricing" },
   { label: "Blog", href: "/blog" },
-  { label: "FAQ", href: "#faq" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export default function HomeNavbar({ solid = false }: HomeNavbarProps) {
