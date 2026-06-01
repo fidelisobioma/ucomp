@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { PenLine, Trash2, Plus, Eye, EyeOff } from "lucide-react";
+import { PenLine, Trash2, Plus, Eye, EyeOff, ExternalLink } from "lucide-react";
 
 interface Post {
   id: string;
@@ -146,7 +146,47 @@ export default function BlogManagementClient({
                 </p>
               </div>
 
+              {/* <div className="flex items-center gap-2 ml-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleTogglePublish(post)}
+                  title={post.published ? "Unpublish" : "Publish"}
+                >
+                  {post.published ? (
+                    <EyeOff className="w-4 h-4 text-slate-500" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-slate-500" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => router.push(`/admin/blog/${post.id}/edit`)}
+                >
+                  <PenLine className="w-4 h-4 text-slate-500" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDeleteTarget(post)}
+                  className="hover:bg-red-50 text-red-500 hover:text-red-600"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div> */}
+
               <div className="flex items-center gap-2 ml-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() =>
+                    router.push(`/admin/blog/preview?id=${post.id}`)
+                  }
+                  title="Preview post"
+                >
+                  <ExternalLink className="w-4 h-4 text-slate-500" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
