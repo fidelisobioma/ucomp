@@ -63,14 +63,11 @@ export default function CategoryManagementClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       const result = await response.json();
-
       if (!response.ok) {
         toast.error(result.error);
         return;
       }
-
       setCategories((prev) => [
         ...prev,
         { ...result.category, _count: { posts: 0 } },
@@ -94,14 +91,11 @@ export default function CategoryManagementClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       const result = await response.json();
-
       if (!response.ok) {
         toast.error(result.error);
         return;
       }
-
       setCategories((prev) =>
         prev.map((c) =>
           c.id === editTarget.id
@@ -125,14 +119,11 @@ export default function CategoryManagementClient({
       const response = await fetch(`/api/blog/categories/${deleteTarget.id}`, {
         method: "DELETE",
       });
-
       const result = await response.json();
-
       if (!response.ok) {
         toast.error(result.error);
         return;
       }
-
       setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       toast.success("Category deleted successfully.");
       setDeleteTarget(null);
@@ -167,22 +158,21 @@ export default function CategoryManagementClient({
         </div>
       ) : (
         <div className="space-y-2">
-          {categories.map((category) => (
+          {categories.map((cat) => (
             <div
-              key={category.id}
+              key={cat.id}
               className="flex justify-between items-center bg-white hover:shadow-sm p-4 border rounded-lg transition-shadow"
             >
               <div className="flex items-center gap-3">
                 <Tag className="w-4 h-4 text-slate-400" />
                 <div>
                   <p className="font-medium text-slate-900 text-sm">
-                    {category.name}
+                    {cat.name}
                   </p>
-                  <p className="text-slate-400 text-xs">/{category.slug}</p>
+                  <p className="text-slate-400 text-xs">/{cat.slug}</p>
                 </div>
                 <Badge variant="secondary" className="text-xs">
-                  {category._count.posts} post
-                  {category._count.posts !== 1 ? "s" : ""}
+                  {cat._count.posts} post{cat._count.posts !== 1 ? "s" : ""}
                 </Badge>
               </div>
 
@@ -191,8 +181,8 @@ export default function CategoryManagementClient({
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    setEditTarget(category);
-                    editForm.setValue("name", category.name);
+                    setEditTarget(cat);
+                    editForm.setValue("name", cat.name);
                   }}
                 >
                   <Pencil className="w-4 h-4 text-slate-500" />
@@ -200,14 +190,8 @@ export default function CategoryManagementClient({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setDeleteTarget(category)}
+                  onClick={() => setDeleteTarget(cat)}
                   className="hover:bg-red-50 text-red-500 hover:text-red-600"
-                  disabled={category._count.posts > 0}
-                  title={
-                    category._count.posts > 0
-                      ? "Cannot delete category with posts"
-                      : "Delete category"
-                  }
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -293,19 +277,24 @@ export default function CategoryManagementClient({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Category</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete{" "}
-              <span className="font-medium text-slate-900">
-                {deleteTarget?.name}
-              </span>
-              ?{" "}
-              {deleteTarget && (deleteTarget._count?.posts ?? 0) > 0 && (
-                <span className="font-medium text-red-600">
-                  This will also delete {deleteTarget._count.posts} post(s) in
-                  this category.{" "}
-                </span>
-              )}
-              This action cannot be undone.
+            <DialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Are you sure you want to delete{" "}
+                  <span className="font-medium text-slate-900">
+                    {deleteTarget?.name}
+                  </span>
+                  ?
+                </p>
+                {deleteTarget && (deleteTarget._count?.posts ?? 0) > 0 && (
+                  <p className="bg-red-50 p-3 rounded-lg font-medium text-red-600 text-sm">
+                    ⚠️ This will permanently delete {deleteTarget._count.posts}{" "}
+                    post
+                    {deleteTarget._count.posts !== 1 ? "s" : ""} belonging to
+                    this category. This action cannot be undone.
+                  </p>
+                )}
+              </div>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -316,14 +305,12 @@ export default function CategoryManagementClient({
             >
               Cancel
             </Button>
-
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteTarget(category)}
-              className="hover:bg-red-50 text-red-500 hover:text-red-600"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
             >
-              <Trash2 className="w-4 h-4" />
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
