@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { FaFacebook, FaInstagram, FaXTwitter } from "react-icons/fa6";
 import { Separator } from "@/components/ui/separator";
+import { Mail, MapPin, Clock } from "lucide-react";
 
 const quickLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Services", href: "#services" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Features", href: "/#features" },
+  { label: "Services", href: "/#services" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 const socialLinks = [
@@ -16,6 +17,8 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-slate-900 text-white">
       <div className="mx-auto px-6 py-16 max-w-7xl">
@@ -65,9 +68,18 @@ export default function Footer() {
           <div>
             <h4 className="mb-4 font-semibold text-sm">Contact Us</h4>
             <ul className="space-y-3 text-slate-400 text-sm">
-              <li>hello@ucomp.com</li>
-              <li>123 Placeholder Street, Aba, Abia State, Nigeria</li>
-              <li> Mon - Sat: 8:00 AM - 8:00 PM</li>
+              <li className="flex items-center gap-2">
+                <Mail className="w-4 h-4 shrink-0" />
+                hello@ucomp.com
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 w-4 h-4 shrink-0" />
+                123 Placeholder Street, Aba, Abia State, Nigeria
+              </li>
+              <li className="flex items-center gap-2">
+                <Clock className="w-4 h-4 shrink-0" />
+                Mon - Sat: 8:00 AM - 8:00 PM
+              </li>
             </ul>
           </div>
         </div>
@@ -75,7 +87,7 @@ export default function Footer() {
         <Separator className="bg-slate-800 my-10" />
 
         <div className="flex md:flex-row flex-col justify-between items-center gap-4 text-slate-500 text-sm">
-          <p>© 2025 Ucomp. All rights reserved.</p>
+          <p>© {currentYear} Ucomp. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="#" className="hover:text-white transition-colors">
               Privacy Policy

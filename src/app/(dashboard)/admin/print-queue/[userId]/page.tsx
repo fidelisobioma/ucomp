@@ -28,6 +28,7 @@ export default async function AdminUserPrintQueuePage({
         userId,
         assignedAdminId: adminId,
         status: { in: ["PENDING", "PRINTED"] },
+        expiresAt: { gt: new Date() },
       },
       include: {
         file: true,

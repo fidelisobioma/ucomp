@@ -97,9 +97,12 @@ export default function Hero() {
               size="lg"
               variant="outline"
               className="gap-2 hover:bg-white/20 border-white/50 text-slate-800 hover:text-slate-900"
+              asChild
             >
-              <Play className="w-4 h-4" />
-              Watch Demo
+              <Link href="/#tutorial">
+                <Play className="w-4 h-4" />
+                Watch Demo
+              </Link>
             </Button>
           </div>
         </div>
