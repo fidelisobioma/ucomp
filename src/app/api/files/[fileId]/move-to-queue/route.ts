@@ -56,11 +56,12 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if already in queue
+    // Check if already in queue with active status
     const existingQueueItem = await prisma.printQueueItem.findFirst({
       where: {
         fileId,
         status: { in: ["PENDING", "PRINTED"] },
+        expiresAt: { gt: new Date() }, // Only block if not expired
       },
     });
 

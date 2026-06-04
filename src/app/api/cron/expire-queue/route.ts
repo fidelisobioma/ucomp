@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
-    // Verify request is from Vercel Cron
     const authHeader = req.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -11,35 +10,30 @@ export async function GET(req: NextRequest) {
 
     const now = new Date();
 
-    // Find all expired queue items
+    // Find all expired queue items (both PENDING and PRINTED)
     const expiredItems = await prisma.printQueueItem.findMany({
       where: {
-        status: "PENDING",
+        status: { in: ["PENDING", "PRINTED"] },
         expiresAt: { lt: now },
       },
-      include: {
-        file: true,
-      },
+      include: { file: true },
     });
 
     if (expiredItems.length === 0) {
       return NextResponse.json({ message: "No expired items found" });
     }
 
-    // Process each expired item
     await Promise.all(
       expiredItems.map(async (item) => {
         await prisma.$transaction([
-          // Mark as expired
           prisma.printQueueItem.update({
             where: { id: item.id },
             data: { status: "EXPIRED" },
           }),
-          // Notify the user
           prisma.notification.create({
             data: {
               userId: item.userId,
-              message: `Your document "${item.file.name}" has been auto-deleted from the print queue as it expired after 24 hours. You can re-upload it from your private folder anytime.`,
+              message: `Your document "${item.file.name}" has been auto-deleted from the print queue as it expired after 24 hours. You can move it to the queue again from your private folder.`,
               type: "EXPIRY",
             },
           }),
