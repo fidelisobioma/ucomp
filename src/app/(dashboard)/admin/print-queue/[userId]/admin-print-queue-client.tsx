@@ -8,22 +8,13 @@ import {
   FileIcon,
   PrinterIcon,
   ArrowLeft,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import ExpiryTimer from "@/components/dashboard/expiry-timer";
 import FilePreview from "@/components/dashboard/file-preview";
-import { Eye } from "lucide-react";
+import PrintDialog from "@/components/dashboard/print-dialog";
 
 interface QueueItem {
   id: string;
@@ -48,10 +39,6 @@ interface AdminPrintQueueClientProps {
   queueItems: QueueItem[];
 }
 
-function isExpired(expiresAt: Date): boolean {
-  return new Date(expiresAt) < new Date();
-}
-
 function FileTypeIcon({ type }: { type: string }) {
   if (type === "JPG" || type === "PNG")
     return <Image className="w-8 h-8 text-blue-500" />;
@@ -59,68 +46,35 @@ function FileTypeIcon({ type }: { type: string }) {
   return <FileIcon className="w-8 h-8 text-slate-500" />;
 }
 
+function isExpired(expiresAt: Date): boolean {
+  return new Date(expiresAt) < new Date();
+}
+
 export default function AdminPrintQueueClient({
   user,
   queueItems: initialQueueItems,
 }: AdminPrintQueueClientProps) {
   const router = useRouter();
-
   const [queueItems, setQueueItems] = useState<QueueItem[]>(
     initialQueueItems.filter((item) => !isExpired(item.expiresAt)),
   );
-  const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
-  const [copies, setCopies] = useState("1");
-  const [isPrinting, setIsPrinting] = useState(false);
+  const [printTarget, setPrintTarget] = useState<QueueItem | null>(null);
   const [previewFile, setPreviewFile] = useState<QueueItem["file"] | null>(
     null,
   );
 
-  async function handleMarkAsPrinted() {
-    if (!selectedItem) return;
-    setIsPrinting(true);
-
-    try {
-      const response = await fetch(
-        `/api/print-queue/${selectedItem.id}/print`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ copies: parseInt(copies) }),
-        },
-      );
-
-      if (!response.ok) {
-        toast.error("Failed to mark as printed.");
-        return;
-      }
-
-      toast.success(`Document marked as printed — ${copies} cop(ies).`);
-
-      // Update item in admin view — stays until expiry
-      setQueueItems((prev) =>
-        prev.map((item) =>
-          item.id === selectedItem.id
-            ? {
-                ...item,
-                status: "PRINTED",
-                printLogs: [
-                  {
-                    copies: parseInt(copies),
-                    printedAt: new Date(),
-                  },
-                  ...item.printLogs,
-                ],
-              }
-            : item,
-        ),
-      );
-    } catch {
-      toast.error("Something went wrong.");
-    } finally {
-      setIsPrinting(false);
-      setSelectedItem(null);
-      setCopies("1");
-    }
+  function handlePrinted(queueItemId: string, copies: number) {
+    setQueueItems((prev) =>
+      prev.map((item) =>
+        item.id === queueItemId
+          ? {
+              ...item,
+              status: "PRINTED",
+              printLogs: [{ copies, printedAt: new Date() }, ...item.printLogs],
+            }
+          : item,
+      ),
+    );
   }
 
   return (
@@ -169,7 +123,7 @@ export default function AdminPrintQueueClient({
                     </Badge>
                     {item.printLogs.length > 0 && (
                       <Badge className="bg-green-100 text-green-700 text-xs">
-                        Last printed: {item.printLogs[0].copies} cop(ies)
+                        Last: {item.printLogs[0].copies} cop(ies)
                       </Badge>
                     )}
                   </div>
@@ -177,7 +131,7 @@ export default function AdminPrintQueueClient({
                 </div>
               </div>
 
-              <div>
+              <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -185,11 +139,10 @@ export default function AdminPrintQueueClient({
                 >
                   <Eye className="w-4 h-4 text-slate-500" />
                 </Button>
-
                 <Button
                   size="sm"
                   className="gap-1.5"
-                  onClick={() => setSelectedItem(item)}
+                  onClick={() => setPrintTarget(item)}
                 >
                   <PrinterIcon className="w-3.5 h-3.5" />
                   Print
@@ -201,65 +154,20 @@ export default function AdminPrintQueueClient({
       )}
 
       {/* Print Dialog */}
-      <Dialog
-        open={!!selectedItem}
-        onOpenChange={() => {
-          setSelectedItem(null);
-          setCopies("1");
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Mark as Printed</DialogTitle>
-            <DialogDescription>
-              How many copies of{" "}
-              <span className="font-medium text-slate-900">
-                {selectedItem?.file.name}
-              </span>{" "}
-              were printed?
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="py-2">
-            <label className="font-medium text-slate-700 text-sm">
-              Number of copies
-            </label>
-            <Input
-              type="number"
-              min="1"
-              max="100"
-              value={copies}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                if (value > 100) {
-                  toast.error("Maximum copies allowed is 100.");
-                  setCopies("100");
-                  return;
-                }
-                setCopies(e.target.value);
-              }}
-              className="mt-1.5"
-            />
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSelectedItem(null);
-                setCopies("1");
-              }}
-              disabled={isPrinting}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleMarkAsPrinted} disabled={isPrinting}>
-              <PrinterIcon className="mr-1.5 w-3.5 h-3.5" />
-              {isPrinting ? "Marking..." : "Mark as Printed"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {printTarget && (
+        <PrintDialog
+          open={!!printTarget}
+          onOpenChange={(open) => {
+            if (!open) setPrintTarget(null);
+          }}
+          file={printTarget.file}
+          queueItemId={printTarget.id}
+          onPrinted={(copies) => {
+            handlePrinted(printTarget.id, copies);
+            setPrintTarget(null);
+          }}
+        />
+      )}
 
       {/* File Preview */}
       {previewFile && (

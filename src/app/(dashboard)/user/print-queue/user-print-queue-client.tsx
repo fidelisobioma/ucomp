@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import ExpiryTimer from "@/components/dashboard/expiry-timer";
 import AdminPicker from "@/components/dashboard/admin-picker";
+import PrintDialog from "@/components/dashboard/print-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FilePreview from "@/components/dashboard/file-preview";
@@ -82,6 +83,7 @@ export default function UserPrintQueueClient({
   const [isReassigning, setIsReassigning] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [copies, setCopies] = useState("1");
+  const [printTarget, setPrintTarget] = useState<QueueItem | null>(null);
   const [previewFile, setPreviewFile] = useState<QueueItem["file"] | null>(
     null,
   );
@@ -252,13 +254,12 @@ export default function UserPrintQueueClient({
                   <Button
                     size="sm"
                     className="gap-1.5"
-                    onClick={() => setPrintItem(item)}
+                    onClick={() => setPrintTarget(item)}
                   >
                     <PrinterIcon className="w-3.5 h-3.5" />
                     Print
                   </Button>
                 )}
-
                 <Button
                   variant="ghost"
                   size="icon"
@@ -418,6 +419,34 @@ export default function UserPrintQueueClient({
             if (!open) setPreviewFile(null);
           }}
           file={previewFile}
+        />
+      )}
+
+      {printTarget && (
+        <PrintDialog
+          open={!!printTarget}
+          onOpenChange={(open) => {
+            if (!open) setPrintTarget(null);
+          }}
+          file={printTarget.file}
+          queueItemId={printTarget.id}
+          onPrinted={(copies) => {
+            setQueueItems((prev) =>
+              prev.map((item) =>
+                item.id === printTarget.id
+                  ? {
+                      ...item,
+                      status: "PRINTED",
+                      printLogs: [
+                        { copies, printedAt: new Date() },
+                        ...item.printLogs,
+                      ],
+                    }
+                  : item,
+              ),
+            );
+            setPrintTarget(null);
+          }}
         />
       )}
     </div>
