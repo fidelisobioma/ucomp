@@ -18,8 +18,11 @@ interface Post {
   slug: string;
   excerpt: string;
   coverImage: string | null;
-  category: Category;
-  tags: string[];
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
   createdAt: Date;
   author: { name: string | null; image: string | null };
 }
