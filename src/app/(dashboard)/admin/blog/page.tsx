@@ -13,6 +13,7 @@ export default async function BlogManagementPage() {
   const posts = await prisma.blogPost.findMany({
     include: {
       author: { select: { name: true } },
+      category: true,
     },
     orderBy: { createdAt: "desc" },
   });

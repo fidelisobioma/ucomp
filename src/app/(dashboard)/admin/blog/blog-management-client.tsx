@@ -19,7 +19,11 @@ interface Post {
   id: string;
   title: string;
   slug: string;
-  category: string;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
   published: boolean;
   createdAt: Date;
   author: { name: string | null };
@@ -123,8 +127,10 @@ export default function BlogManagementClient({
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge className={`text-xs ${categoryColors[post.category]}`}>
-                    {post.category}
+                  <Badge
+                    className={`text-xs ${categoryColors[post.category.name]}`}
+                  >
+                    {post.category.name}
                   </Badge>
                   <Badge
                     variant="secondary"
@@ -145,36 +151,6 @@ export default function BlogManagementClient({
                   {new Date(post.createdAt).toLocaleDateString()}
                 </p>
               </div>
-
-              {/* <div className="flex items-center gap-2 ml-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleTogglePublish(post)}
-                  title={post.published ? "Unpublish" : "Publish"}
-                >
-                  {post.published ? (
-                    <EyeOff className="w-4 h-4 text-slate-500" />
-                  ) : (
-                    <Eye className="w-4 h-4 text-slate-500" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => router.push(`/admin/blog/${post.id}/edit`)}
-                >
-                  <PenLine className="w-4 h-4 text-slate-500" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleteTarget(post)}
-                  className="hover:bg-red-50 text-red-500 hover:text-red-600"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div> */}
 
               <div className="flex items-center gap-2 ml-4">
                 <Button
