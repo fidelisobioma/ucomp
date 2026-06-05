@@ -43,16 +43,6 @@ export default async function BlogPreviewPage({
           </Link>
         </Button>
         <div className="flex items-center gap-2">
-          <Badge
-            variant="secondary"
-            className={
-              post.published
-                ? "bg-green-100 text-green-700"
-                : "bg-slate-100 text-slate-500"
-            }
-          >
-            {post.published ? "Published" : "Draft"}
-          </Badge>
           <Button asChild size="sm">
             <Link href={`/admin/blog/${post.id}/edit`}>Edit Post</Link>
           </Button>
