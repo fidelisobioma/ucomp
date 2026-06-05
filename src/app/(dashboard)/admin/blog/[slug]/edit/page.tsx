@@ -35,8 +35,7 @@ export default async function EditPostPage({
           title: post.title,
           excerpt: post.excerpt,
           content: post.content,
-          category: post.category,
-          tags: post.tags,
+          categoryId: post.categoryId,
           coverImage: post.coverImage,
           published: post.published,
         }}
