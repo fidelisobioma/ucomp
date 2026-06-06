@@ -3,6 +3,8 @@ import BlogListingClient from "./blog-listing-client";
 import HomeNavbar from "@/components/home/navbar";
 import Footer from "@/components/home/footer";
 
+export const dynamic = "force-dynamic";
+
 export default async function BlogPage() {
   const [posts, categories] = await Promise.all([
     prisma.blogPost.findMany({

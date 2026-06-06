@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@prisma/extension-accelerate": "^3.0.1",
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-blockquote": "^3.23.6",
     "@tiptap/extension-code-block": "^3.23.6",
