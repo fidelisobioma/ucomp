@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getAuthToken } from "@/lib/get-token";
 
 const createPostSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),

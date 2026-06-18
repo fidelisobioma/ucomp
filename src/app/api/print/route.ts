@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import mammoth from "mammoth";
+import { getAuthToken } from "@/lib/get-token";
 
 export async function GET(req: NextRequest) {
   try {

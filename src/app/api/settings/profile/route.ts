@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getAuthToken } from "@/lib/get-token";
 
 const updateProfileSchema = z.object({
   name: z

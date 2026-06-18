@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { getAuthToken } from "@/lib/get-token";
 
 const PLAN_STORAGE_LIMITS = {
   FREE: 20971520, // 20MB

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmailChangeVerification } from "@/lib/email";
 import crypto from "crypto";
 import { z } from "zod";
+import { getAuthToken } from "@/lib/get-token";
 
 const changeEmailSchema = z.object({
   newEmail: z.string().email("Please enter a valid email address"),

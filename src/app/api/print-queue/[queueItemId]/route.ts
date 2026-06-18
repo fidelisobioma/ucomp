@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { getAuthToken } from "@/lib/get-token";
 
 export async function DELETE(
   req: NextRequest,

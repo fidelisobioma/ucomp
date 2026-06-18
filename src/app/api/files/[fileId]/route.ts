@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { UTApi } from "uploadthing/server";
+import { getAuthToken } from "@/lib/get-token";
 
 const utapi = new UTApi();
 
