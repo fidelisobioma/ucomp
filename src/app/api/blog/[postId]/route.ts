@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { UTApi } from "uploadthing/server";
@@ -20,11 +20,7 @@ export async function PATCH(
   { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
-    const token = await getToken({
-      req,
-      secret: process.env.AUTH_SECRET,
-      cookieName: "authjs.session-token",
-    });
+    const token = await getAuthToken(req);
 
     if (!token?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,11 +61,7 @@ export async function DELETE(
   { params }: { params: Promise<{ postId: string }> },
 ) {
   try {
-    const token = await getToken({
-      req,
-      secret: process.env.AUTH_SECRET,
-      cookieName: "authjs.session-token",
-    });
+    const token = await getAuthToken(req);
 
     if (!token?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,8 +1,9 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { getToken } from "next-auth/jwt";
+
 // import { headers } from "next/headers";
-import { NextRequest } from "next/server";
+// import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAuthToken } from "@/lib/get-token";
 
 const f = createUploadthing();
 
@@ -17,11 +18,7 @@ export const ourFileRouter = {
     },
   })
     .middleware(async ({ req }) => {
-      const token = await getToken({
-        req: req as unknown as NextRequest,
-        secret: process.env.AUTH_SECRET,
-        cookieName: "authjs.session-token",
-      });
+      const token = await getAuthToken(req);
 
       if (!token?.id) throw new Error("Unauthorized");
 
@@ -70,11 +67,7 @@ export const ourFileRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .middleware(async ({ req }) => {
-      const token = await getToken({
-        req: req as unknown as NextRequest,
-        secret: process.env.AUTH_SECRET,
-        cookieName: "authjs.session-token",
-      });
+      const token = await getAuthToken(req);
 
       if (!token?.id) throw new Error("Unauthorized");
 
@@ -93,11 +86,7 @@ export const ourFileRouter = {
     image: { maxFileSize: "8MB", maxFileCount: 1 },
   })
     .middleware(async ({ req }) => {
-      const token = await getToken({
-        req: req as unknown as NextRequest,
-        secret: process.env.AUTH_SECRET,
-        cookieName: "authjs.session-token",
-      });
+      const token = await getAuthToken(req);
 
       if (!token?.id) throw new Error("Unauthorized");
       if (token.role !== "ADMIN" && token.role !== "SUPERADMIN") {
