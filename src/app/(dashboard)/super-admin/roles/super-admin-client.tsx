@@ -6,6 +6,7 @@ import { ShieldCheck, ShieldMinus, HardDrive, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -168,6 +169,20 @@ export default function SuperAdminClient({
       setPlanTarget(null);
     }
   }
+  function handlePromote(id: string): void {
+    const u = users.find((x) => x.id === id) ?? null;
+    if (!u) return;
+    setRoleTarget(u);
+  }
+
+  function handleDemote(id: string): void {
+    const u = users.find((x) => x.id === id) ?? null;
+    if (!u) return;
+    // Only allow demotion for ADMIN users; no-op otherwise
+    if (u.role !== "ADMIN") return;
+    setRoleTarget(u);
+  }
+
   return (
     <div className="space-y-6 mx-auto max-w-4xl">
       {/* Header */}
@@ -188,22 +203,32 @@ export default function SuperAdminClient({
           {users.map((user) => (
             <div
               key={user.id}
-              className="flex justify-between items-center bg-white hover:shadow-sm p-4 border rounded-lg transition-shadow"
+              className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 bg-white hover:shadow-sm p-3 sm:p-4 border rounded-lg w-full overflow-hidden transition-shadow"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex justify-center items-center bg-slate-100 rounded-full w-9 h-9 font-medium text-slate-700 text-sm">
-                  {user.name?.[0]?.toUpperCase() ?? "U"}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-slate-900 text-sm">
-                      {user.name ?? "Unnamed User"}
-                    </p>
+              {/* Left — User Info */}
+              <div className="flex flex-1 items-center gap-3 min-w-0">
+                <Avatar className="w-9 h-9 shrink-0">
+                  <AvatarFallback className="bg-slate-100 text-slate-700 text-sm">
+                    {(user.name ?? "U").charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900 text-sm truncate">
+                    {user.name ?? "Unnamed User"}
+                  </p>
+                  <p className="text-slate-400 text-xs truncate">
+                    {user.email}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
                     <Badge
-                      variant="secondary"
-                      className={
-                        user.role === "ADMIN" ? "bg-blue-100 text-blue-700" : ""
-                      }
+                      className={cn(
+                        "text-xs",
+                        user.role === "SUPERADMIN"
+                          ? "bg-purple-100 text-purple-700"
+                          : user.role === "ADMIN"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-slate-100 text-slate-700",
+                      )}
                     >
                       {user.role}
                     </Badge>
@@ -219,58 +244,42 @@ export default function SuperAdminClient({
                     >
                       {user.plan}
                     </Badge>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1.5"
-                      onClick={() => setPlanTarget(user)}
-                    >
-                      <CreditCard className="w-3.5 h-3.5" />
-                      Plan
-                    </Button>
                   </div>
-                  <p className="text-slate-500 text-xs">{user.email}</p>
-                  <p className="mt-0.5 text-slate-400 text-xs">
-                    Storage: {formatBytes(user.storageUsed)} /{" "}
-                    {formatBytes(user.storageLimit)}
-                  </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Right — Actions */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5"
-                  onClick={() => {
-                    setStorageTarget(user);
-                    setStorageLimitMB(
-                      String(Math.round(user.storageLimit / (1024 * 1024))),
-                    );
-                  }}
+                  className="gap-1.5 h-8 text-xs sm:text-sm"
+                  onClick={() => setPlanTarget(user)}
                 >
-                  <HardDrive className="w-3.5 h-3.5" />
-                  Storage
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Plan
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={() => setRoleTarget(user)}
-                >
-                  {user.role === "USER" ? (
-                    <>
-                      <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-                      Make Admin
-                    </>
-                  ) : (
-                    <>
-                      <ShieldMinus className="w-3.5 h-3.5 text-red-500" />
-                      Remove Admin
-                    </>
-                  )}
-                </Button>
+                {user.role === "USER" ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 h-8 text-xs sm:text-sm"
+                    onClick={() => handlePromote(user.id)}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Promote
+                  </Button>
+                ) : user.role === "ADMIN" ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 h-8 text-xs sm:text-sm"
+                    onClick={() => handleDemote(user.id)}
+                  >
+                    <ShieldMinus className="w-3.5 h-3.5" />
+                    Demote
+                  </Button>
+                ) : null}
               </div>
             </div>
           ))}

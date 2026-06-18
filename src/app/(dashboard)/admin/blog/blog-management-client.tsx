@@ -95,6 +95,11 @@ export default function BlogManagementClient({
     }
   }
 
+  function cn(arg0: string, arg1: string): string | undefined {
+    const classes = [arg0, arg1].filter(Boolean).join(" ").trim();
+    return classes || undefined;
+  }
+
   return (
     <div className="space-y-6 mx-auto max-w-4xl">
       <div className="flex justify-between items-center">
@@ -123,22 +128,21 @@ export default function BlogManagementClient({
           {posts.map((post) => (
             <div
               key={post.id}
-              className="flex justify-between items-center bg-white hover:shadow-sm p-4 border rounded-lg transition-shadow"
+              className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 bg-white hover:shadow-sm p-3 sm:p-4 border rounded-lg w-full overflow-hidden transition-shadow"
             >
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge
-                    className={`text-xs ${categoryColors[post.category.name]}`}
-                  >
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <Badge variant="secondary" className="text-xs shrink-0">
                     {post.category.name}
                   </Badge>
                   <Badge
                     variant="secondary"
-                    className={`text-xs ${
+                    className={cn(
+                      "text-xs shrink-0",
                       post.published
                         ? "bg-green-100 text-green-700"
-                        : "bg-slate-100 text-slate-500"
-                    }`}
+                        : "bg-slate-100 text-slate-500",
+                    )}
                   >
                     {post.published ? "Published" : "Draft"}
                   </Badge>
@@ -146,49 +150,52 @@ export default function BlogManagementClient({
                 <p className="font-medium text-slate-900 text-sm truncate">
                   {post.title}
                 </p>
-                <p className="mt-0.5 text-slate-400 text-xs">
+                <p className="mt-0.5 text-slate-400 text-xs truncate">
                   By {post.author.name} •{" "}
                   {new Date(post.createdAt).toLocaleDateString()}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 ml-4">
+              <div className="flex items-center self-end sm:self-auto gap-1 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="w-8 h-8"
                   onClick={() =>
                     router.push(`/admin/blog/preview?id=${post.id}`)
                   }
                   title="Preview post"
                 >
-                  <ExternalLink className="w-4 h-4 text-slate-500" />
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="w-8 h-8"
                   onClick={() => handleTogglePublish(post)}
                   title={post.published ? "Unpublish" : "Publish"}
                 >
                   {post.published ? (
-                    <EyeOff className="w-4 h-4 text-slate-500" />
+                    <EyeOff className="w-3.5 h-3.5 text-slate-500" />
                   ) : (
-                    <Eye className="w-4 h-4 text-slate-500" />
+                    <Eye className="w-3.5 h-3.5 text-slate-500" />
                   )}
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="w-8 h-8"
                   onClick={() => router.push(`/admin/blog/${post.id}/edit`)}
                 >
-                  <PenLine className="w-4 h-4 text-slate-500" />
+                  <PenLine className="w-3.5 h-3.5 text-slate-500" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="hover:bg-red-50 w-8 h-8 text-red-500 hover:text-red-600"
                   onClick={() => setDeleteTarget(post)}
-                  className="hover:bg-red-50 text-red-500 hover:text-red-600"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>

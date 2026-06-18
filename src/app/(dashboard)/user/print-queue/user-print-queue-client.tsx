@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FilePreview from "@/components/dashboard/file-preview";
 import { Eye } from "lucide-react";
+import { truncateFileName } from "@/lib/utils";
 interface QueueItem {
   id: string;
   status: string;
@@ -178,6 +179,17 @@ export default function UserPrintQueueClient({
     }
   }
 
+  function cn(...classes: (string | undefined | boolean)[]): string {
+    return classes
+      .filter((c) => typeof c === "string" && c.length > 0)
+      .join(" ");
+  }
+
+  function setDeleteTarget(item: QueueItem): void {
+    // Open the delete confirmation dialog for the selected item
+    setSelectedItem(item);
+  }
+
   return (
     <div className="space-y-6 mx-auto max-w-4xl">
       <div>
@@ -200,74 +212,58 @@ export default function UserPrintQueueClient({
           {queueItems.map((item) => (
             <div
               key={item.id}
-              className="flex justify-between items-center bg-white hover:shadow-sm p-4 border rounded-lg transition-shadow"
+              className="flex justify-between items-center gap-2 bg-white hover:shadow-sm p-3 sm:p-4 border rounded-lg w-full overflow-hidden transition-shadow"
             >
-              <div className="flex items-center gap-3">
-                <FileTypeIcon type={item.file.type} />
-                <div>
-                  <p className="max-w-50 font-medium text-slate-900 text-sm truncate">
-                    {item.file.name}
+              {/* Left — Icon + Info */}
+              <div className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0">
+                <div className="shrink-0">
+                  <FileTypeIcon type={item.file.type} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900 text-sm truncate">
+                    {truncateFileName(item.file.name)}
                   </p>
-                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                    <Badge variant="secondary" className="text-xs">
+                  <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                    <Badge variant="secondary" className="text-xs shrink-0">
                       {item.file.type}
                     </Badge>
-                    {item.printLogs.length > 0 && (
-                      <Badge className="bg-green-100 text-green-700 text-xs">
-                        Printed {item.printLogs[0].copies} cop(ies)
-                      </Badge>
-                    )}
-                    {item.assignedAdmin && (
-                      <Badge className="bg-blue-100 text-blue-700 text-xs">
-                        → {item.assignedAdmin.name ?? item.assignedAdmin.email}
-                      </Badge>
-                    )}
+                    <Badge
+                      className={cn(
+                        "text-xs shrink-0",
+                        item.status === "PRINTED"
+                          ? "bg-green-100 text-green-700"
+                          : item.status === "EXPIRED"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-amber-100 text-amber-700",
+                      )}
+                    >
+                      {item.status}
+                    </Badge>
                   </div>
                   <ExpiryTimer expiresAt={item.expiresAt} />
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Reassign button — only for PENDING items */}
-                {item.status === "PENDING" && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => setReassignItem(item)}
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    Reassign
-                  </Button>
-                )}
-
+              {/* Right — Actions */}
+              <div className="flex items-center gap-1 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="w-8 h-8"
                   onClick={() => setPreviewFile(item.file)}
                 >
-                  <Eye className="w-4 h-4 text-slate-500" />
+                  <Eye className="w-3.5 h-3.5 text-slate-500" />
                 </Button>
-
-                {/* Print button — admin only */}
-                {isAdmin && (
+                {!isExpired(item.expiresAt) && (
                   <Button
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => setPrintTarget(item)}
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-red-50 w-8 h-8 text-red-500 hover:text-red-600"
+                    onClick={() => setDeleteTarget(item)}
                   >
-                    <PrinterIcon className="w-3.5 h-3.5" />
-                    Print
+                    <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-red-50 text-red-500 hover:text-red-600"
-                  onClick={() => setSelectedItem(item)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
               </div>
             </div>
           ))}

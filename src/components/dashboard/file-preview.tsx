@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
+import { truncateFileName } from "@/lib/utils";
 
 interface FilePreviewProps {
   open: boolean;
@@ -33,7 +34,9 @@ export default function FilePreview({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex flex-col w-full max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="truncate">{file.name}</DialogTitle>
+          <DialogTitle className="max-w-[280px] sm:max-w-full text-sm sm:text-base truncate">
+            {truncateFileName(file.name, 30)}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-1 justify-center items-center bg-slate-50 border rounded-lg min-h-[400px] overflow-hidden">

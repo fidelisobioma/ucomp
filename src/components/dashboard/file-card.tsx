@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner";
 import AdminPicker from "@/components/dashboard/admin-picker";
 import FilePreview from "@/components/dashboard/file-preview";
+import { truncateFileName } from "@/lib/utils";
 
 interface FileCardProps {
   file: {
@@ -44,12 +45,12 @@ function formatBytes(bytes: number): string {
 
 function FileTypeIcon({ type }: { type: string }) {
   if (type === "JPG" || type === "PNG") {
-    return <Image className="w-8 h-8 text-blue-500" />;
+    return <Image className="w-7 sm:w-8 h-7 sm:h-8 text-blue-500" />;
   }
   if (type === "PDF") {
-    return <FileText className="w-8 h-8 text-red-500" />;
+    return <FileText className="w-7 sm:w-8 h-7 sm:h-8 text-red-500" />;
   }
-  return <FileIcon className="w-8 h-8 text-slate-500" />;
+  return <FileIcon className="w-7 sm:w-8 h-7 sm:h-8 text-slate-500" />;
 }
 
 export default function FileCard({
@@ -114,48 +115,54 @@ export default function FileCard({
 
   return (
     <>
-      <div className="flex justify-between items-center bg-white hover:shadow-sm p-4 border rounded-lg transition-shadow">
-        <div className="flex items-center gap-3">
-          <FileTypeIcon type={file.type} />
-          <div>
-            <p className="max-w-[200px] font-medium text-slate-900 text-sm truncate">
-              {file.name}
+      <div className="flex justify-between items-center gap-2 bg-white hover:shadow-sm p-3 sm:p-4 border rounded-lg w-full overflow-hidden transition-shadow">
+        {/* Left — Icon + Info */}
+        <div className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0">
+          <div className="shrink-0">
+            <FileTypeIcon type={file.type} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-slate-900 text-sm truncate">
+              {truncateFileName(file.name)}
             </p>
-            <div className="flex items-center gap-2 mt-0.5">
-              <Badge variant="secondary" className="text-xs">
+            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+              <Badge variant="secondary" className="text-xs shrink-0">
                 {file.type}
               </Badge>
-              <span className="text-slate-400 text-xs">
+              <span className="text-slate-400 text-xs shrink-0">
                 {formatBytes(file.size)}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Right — Actions */}
+        <div className="flex items-center gap-1 shrink-0">
           <Button
             variant="ghost"
             size="icon"
+            className="w-8 sm:w-9 h-8 sm:h-9"
             onClick={() => setShowPreview(true)}
           >
-            <Eye className="w-4 h-4 text-slate-500" />
+            <Eye className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-slate-500" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5"
+            className="gap-1 px-2 sm:px-3 h-8 text-xs sm:text-sm"
             onClick={() => setShowMoveDialog(true)}
           >
-            <MoveRight className="w-3.5 h-3.5" />
-            Move to Queue
+            <MoveRight className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+            <span className="hidden sm:inline">Move to Queue</span>
+            <span className="sm:hidden">Queue</span>
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="hover:bg-red-50 text-red-500 hover:text-red-600"
+            className="hover:bg-red-50 w-8 sm:w-9 h-8 sm:h-9 text-red-500 hover:text-red-600"
             onClick={() => setShowDeleteDialog(true)}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
           </Button>
         </div>
       </div>
@@ -169,16 +176,18 @@ export default function FileCard({
 
       {/* Delete Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
+        <DialogContent className="rounded-xl max-w-[90vw] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete File</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-medium text-slate-900">{file.name}</span>?
-              This action cannot be undone.
+              <span className="font-medium text-slate-900">
+                {truncateFileName(file.name)}
+              </span>
+              ? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
@@ -205,20 +214,22 @@ export default function FileCard({
           if (!open) setSelectedAdminId(null);
         }}
       >
-        <DialogContent>
+        <DialogContent className="rounded-xl max-w-[90vw] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Move to Print Queue</DialogTitle>
             <DialogDescription>
               Select an admin to send{" "}
-              <span className="font-medium text-slate-900">{file.name}</span>{" "}
-              to. The document will auto-delete from the queue after 24 hours.
+              <span className="font-medium text-slate-900">
+                {truncateFileName(file.name)}
+              </span>{" "}
+              to.
             </DialogDescription>
           </DialogHeader>
           <AdminPicker
             selectedAdminId={selectedAdminId}
             onSelect={setSelectedAdminId}
           />
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
               onClick={() => {

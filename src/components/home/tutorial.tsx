@@ -17,8 +17,8 @@ export default function Tutorial() {
         <div className="shadow-xl mx-auto rounded-2xl max-w-4xl aspect-video overflow-hidden">
           <iframe
             className="w-full h-full"
-            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-            title="Ucomp Tutorial"
+            src="https://www.youtube.com/embed/Y-x0efG1seA"
+            title="Ucomp Tutorial Coming Soon"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />

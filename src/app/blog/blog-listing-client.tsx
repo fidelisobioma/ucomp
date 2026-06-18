@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, User, Search } from "lucide-react";
 
 interface Category {
   id: string;
@@ -18,11 +19,7 @@ interface Post {
   slug: string;
   excerpt: string;
   coverImage: string | null;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
+  category: Category;
   createdAt: Date;
   author: { name: string | null; image: string | null };
 }
@@ -35,14 +32,36 @@ export default function BlogListingClient({
   categories: Category[];
 }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPosts =
-    selectedCategoryId === "ALL"
-      ? posts
-      : posts.filter((p) => p.category.id === selectedCategoryId);
+  const filteredPosts = posts
+    .filter((p) =>
+      selectedCategoryId === "ALL"
+        ? true
+        : p.category.id === selectedCategoryId,
+    )
+    .filter((p) => {
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        p.title.toLowerCase().includes(query) ||
+        p.excerpt.toLowerCase().includes(query)
+      );
+    });
 
   return (
     <div className="space-y-8">
+      {/* Search Bar */}
+      <div className="relative mx-auto max-w-md">
+        <Search className="top-1/2 left-3 absolute w-4 h-4 text-slate-400 -translate-y-1/2" />
+        <Input
+          placeholder="Search blog posts..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
       {/* Category Filter */}
       <div className="flex flex-wrap justify-center gap-2">
         <button
@@ -73,7 +92,11 @@ export default function BlogListingClient({
       {/* Posts Grid */}
       {filteredPosts.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-slate-500">No posts in this category yet.</p>
+          <p className="text-slate-500">
+            {searchQuery
+              ? `No posts found matching "${searchQuery}".`
+              : "No posts in this category yet."}
+          </p>
         </div>
       ) : (
         <div className="gap-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
