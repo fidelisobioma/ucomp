@@ -35,7 +35,7 @@ const plans = [
       "Priority support",
     ],
     cta: "Contact Us",
-    href: "mailto:hello@ucomp.com",
+    href: "https://wa.me/2348132034923?text=Hi%2C%20I%27m%20interested%20in%20upgrading%20to%20the%20Ucomp%20Premium%20plan.",
     highlighted: true,
   },
   {
@@ -52,7 +52,7 @@ const plans = [
       "24/7 support",
     ],
     cta: "Contact Us",
-    href: "mailto:hello@ucomp.com",
+    href: "https://wa.me/2348132034923?text=Hi%2C%20I%27m%20interested%20in%20upgrading%20to%20the%20Ucomp%20Max%20plan.",
     highlighted: false,
   },
 ];
@@ -142,7 +142,17 @@ export default function Pricing() {
                 )}
                 disabled={plan.cta === "Coming Soon"}
               >
-                <Link href={plan.href}>{plan.cta}</Link>
+                <Link
+                  href={plan.href}
+                  target={plan.href.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    plan.href.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
+                >
+                  {plan.cta}
+                </Link>
               </Button>
             </div>
           ))}

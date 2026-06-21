@@ -6,12 +6,14 @@ import Services from "@/components/home/services";
 import Pricing from "@/components/home/pricing";
 import FAQ from "@/components/home/faq";
 import Footer from "@/components/home/footer";
+import BlogPreview from "@/components/home/blog-preview";
 
 export default function Home() {
   return (
     <main>
       <HomeNavbar />
       <Hero />
+      <BlogPreview />
       <Tutorial />
       <Features />
       <Services />

@@ -11,7 +11,11 @@ const quickLinks = [
 ];
 
 const socialLinks = [
-  { icon: FaFacebook, href: "#", label: "Facebook" },
+  {
+    icon: FaFacebook,
+    href: "https://web.facebook.com/unicafe.nija/?_rdc=1&_rdr#",
+    label: "Facebook",
+  },
   { icon: FaInstagram, href: "#", label: "Instagram" },
   { icon: FaXTwitter, href: "#", label: "Twitter / X" },
 ];
@@ -70,15 +74,16 @@ export default function Footer() {
             <ul className="space-y-3 text-slate-400 text-sm">
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 shrink-0" />
-                hello@ucomp.com
+                unicafecomputing@gmail.com
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 w-4 h-4 shrink-0" />
-                123 Placeholder Street, Aba, Abia State, Nigeria
+                KML 5 Abakaliki-Enugu Expressway, Abakaliki Ebonyi State,
+                Nigeria
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="w-4 h-4 shrink-0" />
-                Mon - Sat: 8:00 AM - 8:00 PM
+                Mon - Sat: 8:00 AM - 6:00 PM
               </li>
             </ul>
           </div>
