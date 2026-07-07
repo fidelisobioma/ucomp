@@ -11,6 +11,7 @@ import {
   Settings,
   PenLine,
   FolderOpen,
+  QrCode,
   X,
 } from "lucide-react";
 
@@ -33,6 +34,32 @@ const userNavItems: NavItem[] = [
   { label: "Print Queue", href: "/user/print-queue", icon: PrinterIcon },
 ];
 
+// const adminNavItems: NavItem[] = [
+//   { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
+//   { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
+//   { label: "Users", href: "/admin/users", icon: Users },
+//   { label: "Blog Posts", href: "/admin/blog", icon: PenLine },
+//   {
+//     label: "Blog Categories",
+//     href: "/admin/blog/categories",
+//     icon: FolderOpen,
+//   },
+// ];
+
+// const superAdminNavItems: NavItem[] = [
+//   { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
+//   { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
+//   { label: "Users", href: "/admin/users", icon: Users },
+//   { label: "Blog Posts", href: "/admin/blog", icon: PenLine },
+//   {
+//     label: "Blog Categories",
+//     href: "/admin/blog/categories",
+//     icon: FolderOpen,
+//   },
+//   { label: "Role Management", href: "/super-admin/roles", icon: ShieldCheck },
+//   { label: "Settings", href: "/super-admin/settings", icon: Settings },
+// ];
+
 const adminNavItems: NavItem[] = [
   { label: "My Documents", href: "/user/private-folder", icon: FolderLock },
   { label: "My Print Queue", href: "/user/print-queue", icon: PrinterIcon },
@@ -43,6 +70,7 @@ const adminNavItems: NavItem[] = [
     href: "/admin/blog/categories",
     icon: FolderOpen,
   },
+  { label: "QR Code", href: "/admin/qr-code", icon: QrCode },
 ];
 
 const superAdminNavItems: NavItem[] = [
@@ -55,6 +83,7 @@ const superAdminNavItems: NavItem[] = [
     href: "/admin/blog/categories",
     icon: FolderOpen,
   },
+  { label: "QR Code", href: "/admin/qr-code", icon: QrCode },
   { label: "Role Management", href: "/super-admin/roles", icon: ShieldCheck },
   { label: "Settings", href: "/super-admin/settings", icon: Settings },
 ];

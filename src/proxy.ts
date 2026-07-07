@@ -23,7 +23,9 @@ export async function proxy(req: NextRequest) {
     nextUrl.pathname.startsWith("/reset-password");
 
   const isPublicRoute =
-    nextUrl.pathname === "/" || nextUrl.pathname.startsWith("/blog");
+    nextUrl.pathname === "/" ||
+    nextUrl.pathname.startsWith("/blog") ||
+    nextUrl.pathname === "/welcome";
 
   const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
 
